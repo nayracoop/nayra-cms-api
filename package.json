@@ -1,0 +1,64 @@
+{
+  "name": "nayra-cms-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "an API",
+  "license": "GNU GENERAL PUBLIC LICENSE",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index.js",
+    "test-server": "mocha './tests/server/**/*.js' --recursive --check-leaks --reporter min",
+    "coverage-server": "istanbul cover ./node_modules/mocha/bin/_mocha -- 'tests/server/**/*.js'",
+    "coveralls-server": "istanbul cover ./node_modules/mocha/bin/_mocha -- 'tests/server/**/*.js' --report lcovonly && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "bunyan": "^1.8.12",
+    "bunyan-express-serializer": "^1.0.0",
+    "bunyan-format": "^0.2.1",
+    "compression": "^1.6.2",
+    "cors": "^2.8.1",
+    "crypto": "^1.0.1",
+    "dotenv": "^7.0.0",
+    "express": "^4.16.4",
+    "express-content-length-validator": "^1.0.0",
+    "express-request-id": "^1.4.1",
+    "helmet": "^2.1.1",
+    "i18n": "^0.8.3",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.11",
+    "moment": "^2.24.0",
+    "mongoose": "^5.6.9",
+    "mongoose-delete": "^0.5.0",
+    "morgan": "^1.9.1",
+    "passport": "^0.4.0",
+    "passport-headerapikey": "^1.1.0",
+    "passport-local": "^1.0.0",
+    "socket.io": "^2.2.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.2",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.17.1",
+    "faker": "^4.1.0",
+    "istanbul": "^0.4.4",
+    "jasmine-core": "^2.2.0",
+    "mocha": "^2.4.5",
+    "nodemon": "^1.19.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:nayracoop/nayra-cms-api.git"
+  },
+  "author": "nayracoop",
+  "bugs": {
+    "url": "https://github.com/nayracoop/nayra-cms-api/issues"
+  },
+  "homepage": "https://nayra.coop",
+  "engines": {
+    "node": "stable"
+  }
+}

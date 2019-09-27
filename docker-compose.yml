@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  #·······················································#
+  #·API. SOLO ATIENDE EN EL LOCALHOST·····················#
+  #·NGINX LE REDIRIGE EN /API·····························#
+  #·······················································#
+  nayra_cms_api:
+    build: ./
+    ports:
+     - "${NAYRA_CMS_API_LOCAL_PORT}:${NAYRA_CMS_API_PORT}"
+    links:
+      - mongo
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongo
+
+  #·······················································#
+  #·BBDD MONGO············································#
+  #·······················································#
+  mongo:
+    image: mongo:4.2
+    ports:
+     - "${DB_LOCAL_PORT}:${DB_PORT}"
+    volumes:
+      - mongo-data:/data/db
+    command: "--smallfiles --logpath=/dev/null --setParameter failIndexKeyTooLong=false"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=$DB_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD=$DB_PASSWORD
+
+volumes:
+  mongo-data:

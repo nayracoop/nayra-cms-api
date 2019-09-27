@@ -1,0 +1,6 @@
+{
+	"Server_up": "funcionando @: {{hostname}} en el puerto: {{port}}",
+	"Server_environment": "ambiente: {{nodeEnv}}",
+  "Err_pda_event_error": "Pda no asociado a un evento",
+  "Err_pda_uid": "Uid no asociado a un pda"
+}
