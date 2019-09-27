@@ -12,7 +12,7 @@ const baseSchema = {
   deleted: { type: Boolean },
   deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   deletedAt: { type: Date },
-  uri: { type: String, trim: true, immutable: true },
+  url: { type: String, trim: true, immutable: true },
 };
 
 module.exports = {
