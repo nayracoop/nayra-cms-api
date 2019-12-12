@@ -9,7 +9,10 @@
     "dev": "nodemon index.js",
     "test-server": "mocha './tests/server/**/*.js' --recursive --check-leaks --reporter min",
     "coverage-server": "istanbul cover ./node_modules/mocha/bin/_mocha -- 'tests/server/**/*.js'",
-    "coveralls-server": "istanbul cover ./node_modules/mocha/bin/_mocha -- 'tests/server/**/*.js' --report lcovonly && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+    "coveralls-server": "istanbul cover ./node_modules/mocha/bin/_mocha -- 'tests/server/**/*.js' --report lcovonly && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "migrations": "cd tasks && jake migrate",
+    "nayra-cli:migration:add": "cd cli && node migration",
+    "nayra-cli:add-resource": "cd cli && node add-resource"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -35,7 +38,9 @@
     "passport-headerapikey": "^1.1.0",
     "passport-local": "^1.0.0",
     "socket.io": "^2.2.0",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "jake": "^8.0.19",
+    "mongodb": "^3.1.10"
   },
   "devDependencies": {
     "chai": "^3.5.0",
