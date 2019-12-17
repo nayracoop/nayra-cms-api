@@ -1,5 +1,5 @@
 const fs = require("fs");
-require('dotenv').config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 
 const timestamp = Date.now();
 const fileName = `../${process.env.MIGRATIONS_FOLDER}/${timestamp}_${process.argv[2]}.js`;
@@ -17,5 +17,5 @@ exports.up = async (db, cb) => {
 `;
 fs.writeFile(fileName, template, (err, file) => {
   if (err) throw err;
-  console.log("Created migration template "+ fileName);
+  console.log(`Created migration template ${fileName}`);
 });
