@@ -3,13 +3,19 @@ const mongoose = require('mongoose');
 const { BaseSchema } = require('../../base-schema');
 
 const UserSchema = mongoose.Schema({
+  firstName: {
+    type: String, trim: true, index: { unique: true },
+  },
+  lastName: {
+    type: String, trim: true, index: { unique: true },
+  },
   username: {
     type: String, trim: true, required: true, index: { unique: true },
   },
-  apiKey: {
-    type: String, trim: true, required: true, index: true,
-  },
-  accountId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Account' },
+  // apiKey: {
+  //   type: String, trim: true, required: true, index: true,
+  // },
+  // accountId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Account' },
   email: {
     type: String, trim: true, required: true, index: { unique: true },
   },
@@ -22,7 +28,7 @@ const UserSchema = mongoose.Schema({
   failedLoginAttempts: [{ failedPassword: String, onDate: Date }],
   ...BaseSchema,
 }, {
-  collection: 'user',
+  collection: 'users',
   toJSON: {
     transform(doc, ret) {
       delete ret._id;
