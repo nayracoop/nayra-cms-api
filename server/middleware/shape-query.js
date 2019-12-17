@@ -1,13 +1,13 @@
-const assert = require('assert');
-const { normalizeAndLogError } = require('../errors');
+const assert = require("assert");
+const { normalizeAndLogError } = require("../errors");
 
 const fieldIsContainedInModelKeys = (keys, field) => {
-  const normalizedField = field.replace(/^-/, '');
+  const normalizedField = field.replace(/^-/, "");
   return keys.includes(normalizedField);
 };
 
 const validatePaginationQuery = (model, {
-  perPage, page, sortBy, showUpdates,
+  perPage, page, sortBy, showUpdates
 }) => {
   if (page) {
     assert(Number.isSafeInteger(+page), `Page number value value must be numeric, but received: ${page}`);
@@ -18,7 +18,7 @@ const validatePaginationQuery = (model, {
     assert(+perPage >= 0, `Items per page value must be non-negative, but received: ${perPage}`);
   }
   if (showUpdates) {
-    assert(showUpdates === 'true' || showUpdates === 'false', `Show updates filter can only be set to 'true' or 'false', but received: '${showUpdates}'`);
+    assert(showUpdates === "true" || showUpdates === "false", `Show updates filter can only be set to 'true' or 'false', but received: '${showUpdates}'`);
   }
   if (sortBy) {
     assert(fieldIsContainedInModelKeys(Object.keys(model.obj), sortBy), `Sort by field defined (${sortBy}) does not match a valid model property`);
@@ -31,14 +31,14 @@ const validateFieldsQuery = (model, fieldsQuery) => {
     assert(fieldIsContainedInModelKeys(modelKeys, key), `Filter for field defined (${key}) does not match a valid model property`);
   });
   Object.entries(fieldsQuery).forEach((entry) => {
-    assert(entry[1] !== '', `Filter for field defined (${entry[0]}) cannot be empty`);
+    assert(entry[1] !== "", `Filter for field defined (${entry[0]}) cannot be empty`);
   });
 };
 
 const castQueryToRegex = (query) => {
   const regexQuery = {};
   Object.entries(query).forEach((entry) => {
-    regexQuery[entry[0]] = { $regex: new RegExp(entry[1], 'ig') };
+    regexQuery[entry[0]] = { $regex: new RegExp(entry[1], "ig") };
   });
   return regexQuery;
 };
@@ -56,19 +56,19 @@ const shapeQuery = model => async (req, res, next) => {
     const limit = +perPage || 5;
     const currentPage = +page || 1;
     const skip = +limit * (+currentPage - 1) || 0;
-    const select = showUpdates === 'true' ? '+updated' : '-updated';
-    const sort = sortBy || '_id';
+    const select = showUpdates === "true" ? "+updated" : "-updated";
+    const sort = sortBy || "_id";
     const regexQuery = castQueryToRegex(query);
     req.shapedQuery = {
       skip,
       limit,
       select,
       sort,
-      query: regexQuery,
+      query: regexQuery
     };
     next();
   } catch (error) {
-    const throwable = normalizeAndLogError('shapeQuery', req, error);
+    const throwable = normalizeAndLogError("shapeQuery", req, error);
     next(throwable);
   }
 };

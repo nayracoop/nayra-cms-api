@@ -1,5 +1,5 @@
 // Jakefile
-const migrator = require('./migrator');
+const migrator = require("./migrator");
 
 const done = (err) => {
   if (err) {
@@ -8,8 +8,8 @@ const done = (err) => {
   process.exit();
 };
 
-desc('runs migrations in this same folder');
+desc("runs migrations in this same folder");
 
-task('migrate', () => {
+task("migrate", () => {
   migrator.up(done);
 });

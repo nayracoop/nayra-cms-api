@@ -1,11 +1,11 @@
-const bunyan = require('bunyan');
-const bunyanExpressSerializer = require('bunyan-express-serializer');
-const bformat = require('bunyan-format');
-const morgan = require('morgan');
-const addRequestId = require('express-request-id')();
+const bunyan = require("bunyan");
+const bunyanExpressSerializer = require("bunyan-express-serializer");
+const bformat = require("bunyan-format");
+const morgan = require("morgan");
+const addRequestId = require("express-request-id")();
 
-const formatOut = bformat({ outputMode: 'long' });
-const { UnexpectedError } = require('../errors');
+const formatOut = bformat({ outputMode: "long" });
+const { UnexpectedError } = require("../errors");
 
 let loggerInstance;
 
@@ -15,8 +15,8 @@ class LoggerConfig {
 
     const reqSerializer = (req) => {
       const data = JSON.parse(JSON.stringify(bunyanExpressSerializer(req)));
-      if (data.headers['x-api-key']) {
-        data.headers['x-api-key'] = `${data.headers['x-api-key'].substring(0, 12)}(...)`;
+      if (data.headers["x-api-key"]) {
+        data.headers["x-api-key"] = `${data.headers["x-api-key"].substring(0, 12)}(...)`;
       }
       if (data.headers.authorization) {
         data.headers.authorization = `${data.headers.authorization.substring(0, 19)}(...)`;
@@ -25,20 +25,20 @@ class LoggerConfig {
     };
 
     loggerInstance = bunyan.createLogger({
-      name: 'NAYRA CMS',
+      name: "NAYRA CMS",
       stream: formatOut,
       serializers: {
         req: reqSerializer,
         res: bunyan.stdSerializers.res,
-        err: bunyan.stdSerializers.err,
+        err: bunyan.stdSerializers.err
       },
-      level: 'info',
+      level: "info"
     });
 
     app.use((req, res, next) => {
       const log = loggerInstance.child({
         id: req.id,
-        body: req.body,
+        body: req.body
       }, true);
       log.info({ req });
       next();
@@ -46,36 +46,36 @@ class LoggerConfig {
 
     app.use((req, res, next) => {
       const afterResponse = () => {
-        res.removeListener('finish', afterResponse);
-        res.removeListener('close', afterResponse);
+        res.removeListener("finish", afterResponse);
+        res.removeListener("close", afterResponse);
         const log = loggerInstance.child({
-          id: req.id,
+          id: req.id
         }, true);
-        log.info({ res }, 'response');
+        log.info({ res }, "response");
       };
-      res.on('finish', afterResponse);
-      res.on('close', afterResponse);
+      res.on("finish", afterResponse);
+      res.on("close", afterResponse);
       next();
     });
 
-    morgan.token('id', req => req.id);
+    morgan.token("id", req => req.id);
 
     const morganLoggerFormat = ':id [:date[web]] ":method :url" :status :response-time';
 
     app.use(morgan(morganLoggerFormat, {
       skip: (req, res) => res.statusCode < 400,
-      stream: process.stderr,
+      stream: process.stderr
     }));
 
     app.use(morgan(morganLoggerFormat, {
       skip: (req, res) => res.statusCode >= 400,
-      stream: process.stdout,
+      stream: process.stdout
     }));
   }
 
   static getChild(moduleName, id = null, body = null, statusCode = null) {
     if (!loggerInstance) {
-      throw new UnexpectedError(99, 500, 'logger was not initialized');
+      throw new UnexpectedError(99, 500, "logger was not initialized");
     }
     const childConfig = { moduleName };
     if (id) {

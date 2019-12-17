@@ -1,11 +1,11 @@
 
-//migration for ../tasks/migrations/1576078044600_add-superuser.js
+// migration for ../tasks/migrations/1576078044600_add-superuser.js
 const path = require("path");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
 
 exports.getVersion = () => {
-  return __filename.replace(path.join(__dirname, '/'), '');
+  return __filename.replace(path.join(__dirname, "/"), "");
 }
 
 exports.up = async (db, cb) => {
@@ -13,7 +13,7 @@ exports.up = async (db, cb) => {
   const pass = crypto.createHash("md5").update("12341234").digest("hex");
 
 
-  const User = mongoose.model('User', UserSchema);
+  const User = mongoose.model("User", UserSchema);
 
   const user = {
     // firstName: "Super",

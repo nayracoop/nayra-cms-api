@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
-const mongoose = require('mongoose');
-const mongooseDelete = require('mongoose-delete');
-const moment = require('moment');
+const mongoose = require("mongoose");
+const mongooseDelete = require("mongoose-delete");
+const moment = require("moment");
 
 class BaseDao {
   constructor(theSchema, theModelName) {
@@ -26,18 +26,18 @@ class BaseDao {
       limit,
       select,
       sort,
-      query,
+      query
     }, { accountId }) {
       const thingsCount = await this.model(theModelName).countDocuments({ deleted: false });
       const things = await this.model(theModelName).find({
-        ...query, accountId,
+        ...query, accountId
       }).skip(skip)
         .limit(limit)
         .select(select)
         .sort(sort);
       return {
         count: thingsCount,
-        list: things,
+        list: things
       };
     };
 
@@ -55,7 +55,7 @@ class BaseDao {
         { $push: { updated: { by: userId, at: moment().format() } } }, thing);
       const opts = { new: true, runValidators: true };
       const thingUpdated = await this.model(theModelName).findOneAndUpdate({
-        _id, accountId,
+        _id, accountId
       }, update, opts);
       return thingUpdated;
     };
@@ -68,7 +68,7 @@ class BaseDao {
 
     this.theSchema.plugin(mongooseDelete,
       {
-        deletedAt: true, deletedBy: true, overrideMethods: true, indexFields: ['deleted'],
+        deletedAt: true, deletedBy: true, overrideMethods: true, indexFields: ["deleted"]
       });
 
     this.getModel = this.getModel.bind(this);
@@ -80,5 +80,5 @@ class BaseDao {
 }
 
 module.exports = {
-  BaseDao,
+  BaseDao
 };

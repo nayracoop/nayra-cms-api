@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
-const _ = require('lodash');
-const assert = require('assert');
+const mongoose = require("mongoose");
+const _ = require("lodash");
+const assert = require("assert");
 
 const { ObjectId } = mongoose.Types;
-const { normalizeAndLogError, ValidationError } = require('../../../errors');
+const { normalizeAndLogError, ValidationError } = require("../../../errors");
 
 class BaseController {
   constructor(theModel) {
@@ -44,7 +44,7 @@ class BaseController {
       const things = await this.theModel.getAll(shapedQuery, user);
       res.status(200).json(things);
     } catch (error) {
-      console.log('cuco', error);
+      console.log("cuco", error);
       const throwable = normalizeAndLogError(this.theModuleName, res, error);
       next(throwable);
     }
@@ -53,7 +53,7 @@ class BaseController {
   async getById(req, res, next) {
     try {
       const { id } = req.params;
-      assert(ObjectId.isValid(id), 'Id is not a valid ObjectId.');
+      assert(ObjectId.isValid(id), "Id is not a valid ObjectId.");
 
       const { user } = req;
 
@@ -75,7 +75,7 @@ class BaseController {
       const { user } = req;
       const thing = req.body;
 
-      assert(ObjectId.isValid(id), 'Id is not a valid ObjectId.');
+      assert(ObjectId.isValid(id), "Id is not a valid ObjectId.");
       assert(_.isObject(thing), `${this.theModuleName} is not a valid object.`);
 
       const updatedThing = await this.theModel.updateById(id, thing, user);
@@ -95,7 +95,7 @@ class BaseController {
       const { id } = req.params;
       const { user } = req;
 
-      assert(ObjectId.isValid(id), 'Id is not a valid ObjectId.');
+      assert(ObjectId.isValid(id), "Id is not a valid ObjectId.");
 
       const deleteResults = await this.theModel.removeById(id, user);
       if (deleteResults.nModified === 0) {
