@@ -12,7 +12,8 @@
     "coveralls-server": "istanbul cover ./node_modules/mocha/bin/_mocha -- 'tests/server/**/*.js' --report lcovonly && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "migrations": "cd tasks && jake migrate",
     "nayra-cli:migration:add": "cd cli && node migration",
-    "nayra-cli:add-resource": "cd cli && node add-resource"
+    "nayra-cli:add-resource": "cd cli && node add-resource",
+    "test": "NODE_ENV=test nyc --reporter=html --reporter=text --all ./node_modules/mocha/bin/mocha"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -51,7 +52,8 @@
     "faker": "^4.1.0",
     "jasmine-core": "^2.2.0",
     "mocha": "^6.2.0",
-    "nodemon": "^1.19.0"
+    "nodemon": "^1.19.0",
+    "nyc": "^14.1.1"
   },
   "repository": {
     "type": "git",
