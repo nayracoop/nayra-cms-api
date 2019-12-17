@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-const { LoggerConfig } = require('../config/logger.config');
+const { LoggerConfig } = require("../config/logger.config");
 
 class CustomError extends Error {
   constructor(code, statusCode, message) {
@@ -16,8 +16,8 @@ class CustomError extends Error {
         statusCode: this.statusCode,
         name: this.name,
         message: this.message,
-        stacktrace: this.stack,
-      },
+        stacktrace: this.stack
+      }
     };
   }
 }
@@ -26,15 +26,15 @@ const normalizeAndLogError = (moduleName, { id }, error) => {
   let throwable = error;
 
   switch (error.name) {
-    case 'UnexpectedError':
-    case 'PermissionError':
-    case 'AuthenticationError':
+    case "UnexpectedError":
+    case "PermissionError":
+    case "AuthenticationError":
       break;
-    case 'ValidationError':
+    case "ValidationError":
       throwable = new ValidationError(error.code || 80, error.statusCode || 422, error.message);
       break;
-    case 'AssertionError':
-    case 'AssertionError [ERR_ASSERTION]':
+    case "AssertionError":
+    case "AssertionError [ERR_ASSERTION]":
       throwable = new ValidationError(1, 422, error.message);
       break;
     default:
@@ -65,14 +65,14 @@ const handleError = (error, req, res, _next) => {
 class ValidationError extends CustomError {
   constructor(code, statusCode, message) {
     super(code, statusCode, message);
-    this.name = 'ValidationError';
+    this.name = "ValidationError";
   }
 }
 
 class PermissionError extends CustomError {
   constructor(code, statusCode, message) {
     super(code, statusCode, message);
-    this.name = 'PermissionError';
+    this.name = "PermissionError";
   }
 }
 
@@ -90,14 +90,14 @@ class PermissionError extends CustomError {
 class AuthenticationError extends CustomError {
   constructor(code, statusCode, message) {
     super(code, statusCode, message);
-    this.name = 'AuthenticationError';
+    this.name = "AuthenticationError";
   }
 }
 
 class UnexpectedError extends CustomError {
   constructor(code, statusCode, message) {
     super(code, statusCode, message);
-    this.name = 'UnexpectedError';
+    this.name = "UnexpectedError";
   }
 }
 
@@ -107,5 +107,5 @@ module.exports = {
   AuthenticationError,
   UnexpectedError,
   normalizeAndLogError,
-  handleError,
+  handleError
 };

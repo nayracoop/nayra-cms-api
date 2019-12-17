@@ -1,44 +1,44 @@
 /* eslint-disable no-param-reassign */
-const mongoose = require('mongoose');
-const { BaseSchema } = require('../../base-schema');
+const mongoose = require("mongoose");
+const { BaseSchema } = require("../../base-schema");
 
 const UserSchema = mongoose.Schema({
   firstName: {
-    type: String, trim: true, index: { unique: true },
+    type: String, trim: true, index: { unique: true }
   },
   lastName: {
-    type: String, trim: true, index: { unique: true },
+    type: String, trim: true, index: { unique: true }
   },
   username: {
-    type: String, trim: true, required: true, index: { unique: true },
+    type: String, trim: true, required: true, index: { unique: true }
   },
   // apiKey: {
   //   type: String, trim: true, required: true, index: true,
   // },
   // accountId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Account' },
   email: {
-    type: String, trim: true, required: true, index: { unique: true },
+    type: String, trim: true, required: true, index: { unique: true }
   },
   emailConfirmed: {
-    type: Boolean, trim: true, default: false,
+    type: Boolean, trim: true, default: false
   },
   hash: { type: String, trim: true },
   salt: { type: String, trim: true },
   previousHashes: [{ type: String, trim: true }],
   failedLoginAttempts: [{ failedPassword: String, onDate: Date }],
-  ...BaseSchema,
+  ...BaseSchema
 }, {
-  collection: 'users',
+  collection: "users",
   toJSON: {
     transform(doc, ret) {
       delete ret._id;
     },
-    virtuals: true,
-  },
+    virtuals: true
+  }
 });
 
-UserSchema.virtual('url').get(function url() { return `/users/${this._id}`; });
+UserSchema.virtual("url").get(function url() { return `/users/${this._id}`; });
 
 module.exports = {
-  UserSchema,
+  UserSchema
 };

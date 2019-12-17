@@ -1,2 +1,2 @@
-require('dotenv').config();
-require('./server/server');
+require("dotenv").config();
+require("./server/server");
