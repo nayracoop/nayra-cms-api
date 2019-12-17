@@ -5,6 +5,8 @@
       "allow": [ "_id" ]
     }],
     "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "no-console": "off"
+    "no-console": "off",
+    "quotes": [2, "double", { "avoidEscape": true }],
+    "comma-dangle": ["error", "never"]
   }
 }
