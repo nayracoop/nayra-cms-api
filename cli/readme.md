@@ -2,4 +2,6 @@ This folder contains experimental ideas and functionalities to be used in furthe
 
 run it using 
 
-```node cli/index.js```
+```node cli/index.js <command>```
+
+available (WIP) commands: *install* , *add-resource <resouce name>*
