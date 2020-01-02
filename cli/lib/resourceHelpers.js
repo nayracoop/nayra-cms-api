@@ -4,6 +4,7 @@ const { createDir, createFile } = require("../cli-helpers");
 
 const apiPath = "../server/api";
 
+
 function createFoldersAndFiles(name) {
   const resourceFolders = [
     "controller", "dao", "model", "routes", "tests"
@@ -22,6 +23,7 @@ function createFoldersAndFiles(name) {
     createFile(`${resourceSubDir}/${name}-${f}.js`);
   });
 }
+
 
 module.exports = {
   createFoldersAndFiles

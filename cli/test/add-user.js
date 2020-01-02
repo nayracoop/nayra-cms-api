@@ -1,20 +1,20 @@
-const { expect}  = require("chai");
-const sandbox = require("sinon").createSandbox();
+const { expect, assert }  = require("chai");
+const sandbox = require("sinon");
 const { addUser } = require("../lib/add-user");
-// const { expect } = chai.expect;
+
 let spyConsole = null;
 
-beforeEach(() => {
-  spyConsole = sandbox.spy(console, "log");
-});
+describe("add-user", () => {
+  beforeEach(() => {
+    spyConsole = sandbox.spy(console, "log");
+  });
 
-afterEach(() => {
-  sandbox.restore();
-});
+  afterEach(() => {
+    spyConsole.restore();
+  });
 
-describe("add-resource", () => {
-  it("should fail if resource name were not given", () => {
+  it("should call the console log", () => {
     addUser();
-    expect(console.log.calledOnce).to.be.eql(true);
+    expect(spyConsole.calledOnce).to.be.eql(true);
   });
 });
