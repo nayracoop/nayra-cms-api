@@ -1,5 +1,7 @@
 const inquirer = require("inquirer");
+const chalk = require("chalk");
 const files = require("./files");
+
 
 module.exports = {
   askNayraCMS: () => {
@@ -7,24 +9,38 @@ module.exports = {
       {
         name: "app-name",
         type: "input",
-        message: "Enter a name of your project",
-        validate: value => {
+        message: `Enter a ${chalk.keyword("orange")("name")} of your project`,
+        validate: (value) => {
           if (value) {
             return true;
-          } else {
-            return "Please don't forget to enter your app name, gracia!"
           }
+          return "Please don't forget to enter your app name, gracia!";
         }
       },
       {
-        name: "sample-choice",
-        type: "list",
-        message: "How many SSDs bought Tobaias this year?",
-        choices: ["1", "2","3", "4", "He doesn't like SSDs"]
-
+        name: "username",
+        type: "input",
+        message: "Enter username"
+      },
+      {
+        name: "password",
+        type: "password",
+        message: "Enter password",
+        mask: "*"
+      },
+      {
+        name: "password-confirmation",
+        type: "password",
+        message: "Confirm password",
+        mask: "*"
+      },
+      {
+        name: "user-types",
+        type: "checkbox",
+        message: "Select user types needed",
+        choices: ["guest", "consultant"]
       }
     ];
-
     return inquirer.prompt(questions);
   }
 };

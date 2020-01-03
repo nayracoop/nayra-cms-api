@@ -6,21 +6,20 @@ const commander = require("commander");
 const inquirer = require("../lib/inquirer");
 const { addUser } = require("../lib/add-user");
 const ResourceHelper = require("../lib/resourceHelpers");
-//
 
 const program = new commander.Command();
 
-// version 
+// version
 const version = program.version("Nayra CMS CLI v0.0.0", "-v");
 console.log(version.version());
 
 // actions
-const run = async () => {
+const initQuestions = async () => {
   const appQuestions = await inquirer.askNayraCMS();
   console.log(appQuestions);
 };
 
-const init = () => {
+const userInit = () => {
   console.log("I'll do the (super)admin migration and the ");
   addUser();
 };
@@ -30,8 +29,9 @@ const init = () => {
 program
   .command("init")
   .description("handle the CMS installation and basic configuration")
-  .action(init)
-;
+  .action(() => {
+    initQuestions();
+  });
 
 program
   .command("add-resource [name]")
@@ -42,9 +42,8 @@ program
     } else {
       console.error("ERROR: `add-resource` command requires to be provided a resource name");
     }
-  })
-;
+  });
 
 module.exports = {
   program
-}
+};

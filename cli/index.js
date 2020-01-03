@@ -7,10 +7,15 @@ const { program } = require("./commands/commands");
 clear();
 // some unnecessary but nice ascii art
 console.log(
-  chalk.yellow(
-    figlet.textSync("Nayra CLI", { horizontalLayout: "full" })
+  chalk.keyword("darkorange")(
+    figlet.textSync(
+      "nayra cli",
+      {
+        horizontalLayout: "full",
+        font: "Roman"
+      }
+    )
   )
 );
 
 program.parse(process.argv);
-// run();
