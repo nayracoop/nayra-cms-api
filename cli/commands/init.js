@@ -1,7 +1,5 @@
 const inquirer = require("inquirer");
 const chalk = require("chalk");
-const files = require("./files");
-
 
 module.exports = {
   askNayraCMS: () => {

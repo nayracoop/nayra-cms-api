@@ -3,8 +3,8 @@ const clear = require("clear");
 const figlet = require("figlet");
 const commander = require("commander");
 
-const inquirer = require("../lib/inquirer");
-const { addUser } = require("../lib/add-user");
+const inquirer = require("./init");
+const { addUser } = require("./add-user");
 const ResourceHelper = require("../lib/resourceHelpers");
 
 const program = new commander.Command();

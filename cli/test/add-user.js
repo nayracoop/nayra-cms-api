@@ -1,6 +1,6 @@
 const { expect, assert }  = require("chai");
 const sandbox = require("sinon");
-const { addUser } = require("../lib/add-user");
+const { addUser } = require("../commands/add-user");
 
 let spyConsole = null;
 

@@ -1,6 +1,6 @@
 
 require("dotenv").config({ path: "../.env" });
-const { createDir, createFile } = require("../cli-helpers");
+const { createDir, createFile } = require("./files");
 
 const apiPath = "../server/api";
 
