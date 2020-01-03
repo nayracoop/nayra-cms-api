@@ -1,7 +1,5 @@
-const chalk = require("chalk");
-const clear = require("clear");
-const figlet = require("figlet");
 const commander = require("commander");
+const chalk = require("chalk");
 const { cliHeader } = require("../lib/header");
 const init = require("./init");
 const { addUser } = require("./add-user");
@@ -14,8 +12,13 @@ program.version("nayra cms cli v0.0.0");
 
 // actions
 const initQuestions = async () => {
-  const appQuestions = await init.askNayraCMS();
-  console.log(appQuestions);
+  const initData = await init.askNayraCMS();
+  console.log("");
+  console.log("-----------------------------------------------------------");
+  console.log(`The cms ${chalk.keyword("darkorange")(initData.appName)} has been created!`);
+  console.log(`Please login using username  ${chalk.yellow(initData.username)} and password.`);
+  console.log("");
+  console.log("Use --help to see all cli commands");
 };
 
 const userInit = () => {

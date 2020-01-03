@@ -5,7 +5,7 @@ module.exports = {
   askNayraCMS: () => {
     const questions = [
       {
-        name: "app-name",
+        name: "appName",
         type: "input",
         message: `Enter a ${chalk.keyword("orange")("name")} of your project`,
         validate: (value) => {
@@ -18,7 +18,13 @@ module.exports = {
       {
         name: "username",
         type: "input",
-        message: "Enter username"
+        message: "Enter username",
+        validate: (value) => {
+          if (value.length > 5) {
+            return true;
+          }
+          return "Please provide a username of at least 5 characters";
+        }
       },
       {
         name: "password",
@@ -27,16 +33,19 @@ module.exports = {
         mask: "*"
       },
       {
-        name: "password-confirmation",
+        name: "passwordConfirmation",
         type: "password",
         message: "Confirm password",
         mask: "*"
       },
       {
-        name: "user-types",
+        name: "userTypes",
         type: "checkbox",
         message: "Select user types needed",
-        choices: ["guest", "consultant"]
+        choices: [
+          { value: "guest", name: " Guest - access restricted data, no login", short: "Guest" },
+          { value: "consultant", name: " Consultant - access restricted data, login", short: "Consultant" }
+        ]
       }
     ];
     return inquirer.prompt(questions);
