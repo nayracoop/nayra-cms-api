@@ -44,7 +44,7 @@ module.exports = {
         message: "Select user types needed",
         choices: [
           { value: "guest", name: " Guest - access restricted data, can't edit, no login", short: "Guest" },
-          { value: "editor", name: " Editor - access restricted data, can edit, login", short: "Consultant" }
+          { value: "editor", name: " Editor - access restricted data, can edit, login", short: "Editor" }
         ]
       }
     ];
