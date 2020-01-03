@@ -2,20 +2,19 @@ const chalk = require("chalk");
 const clear = require("clear");
 const figlet = require("figlet");
 const commander = require("commander");
-
-const inquirer = require("./init");
+const { cliHeader } = require("../lib/header");
+const init = require("./init");
 const { addUser } = require("./add-user");
 const ResourceHelper = require("../lib/resourceHelpers");
 
 const program = new commander.Command();
 
 // version
-const version = program.version("Nayra CMS CLI v0.0.0", "-v");
-console.log(version.version());
+program.version("nayra cms cli v0.0.0");
 
 // actions
 const initQuestions = async () => {
-  const appQuestions = await inquirer.askNayraCMS();
+  const appQuestions = await init.askNayraCMS();
   console.log(appQuestions);
 };
 
@@ -30,6 +29,7 @@ program
   .command("init")
   .description("handle the CMS installation and basic configuration")
   .action(() => {
+    cliHeader();
     initQuestions();
   });
 
