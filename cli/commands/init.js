@@ -20,7 +20,7 @@ module.exports = {
         type: "input",
         message: "Enter username",
         validate: (value) => {
-          if (value.length > 5) {
+          if (value.length > 4) {
             return true;
           }
           return "Please provide a username of at least 5 characters";
@@ -30,21 +30,21 @@ module.exports = {
         name: "password",
         type: "password",
         message: "Enter password",
-        mask: "*"
-      },
-      {
-        name: "passwordConfirmation",
-        type: "password",
-        message: "Confirm password",
-        mask: "*"
+        mask: "*",
+        validate: (value) => {
+          if (value.length > 5) {
+            return true;
+          }
+          return "Please provide a password of at least 6 characters";
+        }
       },
       {
         name: "userTypes",
         type: "checkbox",
         message: "Select user types needed",
         choices: [
-          { value: "guest", name: " Guest - access restricted data, no login", short: "Guest" },
-          { value: "consultant", name: " Consultant - access restricted data, login", short: "Consultant" }
+          { value: "guest", name: " Guest - access restricted data, can't edit, no login", short: "Guest" },
+          { value: "editor", name: " Editor - access restricted data, can edit, login", short: "Consultant" }
         ]
       }
     ];
