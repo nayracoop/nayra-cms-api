@@ -1,6 +1,8 @@
+const log = require("../lib/logger");
+
 const addUser = () => {
   // check if exist a super user first
-  console.log("creating new (super)admin");
+  log.info("creating new (super)admin");
 };
 
 module.exports = {

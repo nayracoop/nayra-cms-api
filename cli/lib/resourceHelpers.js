@@ -1,5 +1,6 @@
 
 require("dotenv").config({ path: "../.env" });
+const log = require("./logger");
 const { createDir, createFile } = require("./files");
 
 const apiPath = "../server/api";
@@ -12,10 +13,10 @@ function createFoldersAndFiles(name) {
 
   const baseDir = `${apiPath}/${name}`;
 
-  console.log(`Creating api resources for: ${name}`);
+  log.info(`Creating api resources for: ${name}`);
 
   createDir(`${baseDir}`);
-  console.log(`created new folder ${baseDir}`);
+  log.info(`created new folder ${baseDir}`);
 
   resourceFolders.forEach((f) => {
     const resourceSubDir = `${baseDir}/${f}`;
