@@ -44,7 +44,6 @@ class BaseController {
       const things = await this.theModel.getAll(shapedQuery, user);
       res.status(200).json(things);
     } catch (error) {
-      console.log("cuco", error);
       const throwable = normalizeAndLogError(this.theModuleName, res, error);
       next(throwable);
     }

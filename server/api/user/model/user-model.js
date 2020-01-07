@@ -3,24 +3,20 @@ const mongoose = require("mongoose");
 const { BaseSchema } = require("../../base-schema");
 
 const UserSchema = mongoose.Schema({
-  firstName: {
-    type: String, trim: true, index: { unique: true }
-  },
-  lastName: {
-    type: String, trim: true, index: { unique: true }
-  },
   username: {
     type: String, trim: true, required: true, index: { unique: true }
   },
-  // apiKey: {
-  //   type: String, trim: true, required: true, index: true,
-  // },
-  // accountId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Account' },
   email: {
     type: String, trim: true, required: true, index: { unique: true }
   },
   emailConfirmed: {
     type: Boolean, trim: true, default: false
+  },
+  firstName: {
+    type: String, trim: true, index: { unique: true }
+  },
+  lastName: {
+    type: String, trim: true, index: { unique: true }
   },
   hash: { type: String, trim: true },
   salt: { type: String, trim: true },
