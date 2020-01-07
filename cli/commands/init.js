@@ -18,12 +18,10 @@ module.exports = {
       {
         name: "username",
         type: "input",
-        message: "Enter username",
+        message: "Enter username (alphanumeric and dashes, no spaces, 5-20 characters)",
         validate: (value) => {
-          if (value.length > 4) {
-            return true;
-          }
-          return "Please provide a username of at least 5 characters";
+          const match = value.match(/^(?=.{5,20}$)[0-9a-zA-Z_-]+$/);
+          return (match) ? true : "Please provide a valid username (alphanumeric and dashes, no spaces, 5-20 characters)";
         }
       },
       {
