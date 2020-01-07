@@ -10,7 +10,7 @@ const checkSuperAdmin = async (req, res, next) => {
     assert(_.isObject(user), "User is not a valid object.");
 
     const account = await AccountDao.getById(user.accountId);
-    if (!account.isSuperAdmin && id !== account._id.toString()) {
+    if (!user.isSuperAdmin && id !== account._id.toString()) {
       throw new AuthenticationError(11, 401, "No super admin on external resource.");
     }
 
