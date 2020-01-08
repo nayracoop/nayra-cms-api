@@ -36,7 +36,7 @@ class UserController extends BaseController {
         } else {
           const newUser = req.body;
           const opUser = req.user;
-          newUser.apiKey = buffer.toString("hex");
+          // newUser.apiKey = buffer.toString("hex");
 
           assert(_.isObject(newUser), "User is not a valid object.");
           assert(_.isObject(opUser), "opUser is not a valid object.");
@@ -109,7 +109,7 @@ class UserController extends BaseController {
 
           assert(_.isObject(newUser), "User is not a valid object.");
 
-          newUser.apiKey = buffer.toString("hex");
+          // newUser.apiKey = buffer.toString("hex");
           if (!newUser.accountId) {
             const demoAccounts = await accountDao.getAll({ name: "demo" });
             newUser.accountId = demoAccounts[0]._id;

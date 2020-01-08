@@ -1,4 +1,4 @@
-const { checkApiKey, checkJwt, shapeQuery } = require('../../../middleware');
+const { checkJwt, shapeQuery } = require('../../../middleware');
 const { CurrencySchema } = require('../model/currency-model');
 const { CurrencyController } = require('../controller/currency-controller');
 
@@ -8,14 +8,14 @@ class CurrencyRoutes {
 
     router
       .route('/api/currencies')
-      .post([checkApiKey, checkJwt, currencyController.createNew])
-      .get([checkApiKey, shapeQuery(CurrencySchema), currencyController.getAll]);
+      .post([checkJwt, currencyController.createNew])
+      .get([checkJwt, shapeQuery(CurrencySchema), currencyController.getAll]);
 
     router
       .route('/api/currencies/:id')
-      .get([checkApiKey, currencyController.getById])
-      .patch([checkApiKey, checkJwt, currencyController.updateById])
-      .delete([checkApiKey, checkJwt, currencyController.removeById]);
+      .get([checkJwt, currencyController.getById])
+      .patch([checkJwt, currencyController.updateById])
+      .delete([checkJwt, currencyController.removeById]);
   }
 }
 

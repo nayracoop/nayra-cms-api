@@ -8,15 +8,15 @@ class UserDao extends BaseDao {
   constructor(theSchema, theModelName) {
     super(theSchema, theModelName);
 
-    /**
-     * Read (by apikey)
-     */
-    this.theSchema.statics.getByApiKey = async function getByApiKey(apiKey) {
-      assert(_.isString(apiKey), new TypeError("ApiKey is not a valid string."));
+    // /**
+    //  * Read (by apikey)
+    //  */
+    // this.theSchema.statics.getByApiKey = async function getByApiKey(apiKey) {
+    //   assert(_.isString(apiKey), new TypeError("ApiKey is not a valid string."));
 
-      const user = await this.model(theModelName).findOne({ apiKey });
-      return user;
-    };
+    //   const user = await this.model(theModelName).findOne({ apiKey });
+    //   return user;
+    // };
 
     /**
      * Read (by username)
