@@ -25,7 +25,7 @@ class UserDao extends BaseDao {
       assert(_.isString(usernameOrEmail), new TypeError("Username is not a valid string."));
 
       const user = await this.model(theModelName).findOne({
-        $or: [{ usernameOrEmail }, { email: usernameOrEmail }]
+        $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }]
       });
       return user;
     };

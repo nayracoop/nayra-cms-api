@@ -14,6 +14,8 @@ const { AccountDao } = require("../../account/dao/account-dao");
 const { AccountSchema } = require("../../account/model/account-model");
 const { AuthenticationError, normalizeAndLogError } = require("../../../errors");
 
+const { JWT_SECRET } = process.env;
+
 class UserController extends BaseController {
   constructor() {
     const user = new UserDao(UserSchema, "User").getModel();
@@ -59,14 +61,15 @@ class UserController extends BaseController {
         if (err) {
           throw err;
         }
-        const account = await this.account.getById(user.accountId);
-        if (!account || !account.privateKey) {
-          throw new AuthenticationError(9, 401, "Not authenticated.");
-        }
-        if (!account.isValid) {
-          throw new AuthenticationError(10, 401, "Not authenticated.");
-        }
-        const token = jwt.sign(user.toObject(), account.privateKey);
+        // const account = await this.account.getById(user.accountId);
+        // if (!account || !account.privateKey) {
+        //   throw new AuthenticationError(9, 401, "Not authenticated.");
+        // }
+        // if (!account.isValid) {
+        //   throw new AuthenticationError(10, 401, "Not authenticated.");
+        // }
+        // const token = jwt.sign(user.toObject(), account.privateKey);
+        const token = jwt.sign(user.toObject(), JWT_SECRET);
 
         res.status(200).json({ user, token });
       } catch (error) {

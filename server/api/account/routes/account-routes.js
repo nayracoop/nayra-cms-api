@@ -1,5 +1,5 @@
 const {
-  checkJwt, shapeQuery, checkSuperAdmin
+  authJwt, checkJwt, shapeQuery, checkSuperAdmin
 } = require('../../../middleware');
 const { AccountSchema } = require('../model/account-model');
 const { AccountController } = require('../controller/account-controller');
@@ -10,14 +10,14 @@ class AccountRoutes {
 
     router
       .route('/api/accounts')
-      .post([checkJwt, checkSuperAdmin, accountController.createNew])
-      .get([checkJwt, shapeQuery(AccountSchema), checkSuperAdmin, accountController.getAll]);
+      .post([authJwt, checkJwt, checkSuperAdmin, accountController.createNew])
+      .get([authJwt, checkJwt, shapeQuery(AccountSchema), checkSuperAdmin, accountController.getAll]);
 
     router
       .route('/api/accounts/:id')
-      .get([checkJwt, accountController.getById])
-      .patch([checkJwt, accountController.updateById])
-      .delete([checkJwt, checkSuperAdmin, accountController.removeById]);
+      .get([authJwt, checkJwt, accountController.getById])
+      .patch([authJwt, checkJwt, accountController.updateById])
+      .delete([authJwt, checkJwt, checkSuperAdmin, accountController.removeById]);
   }
 }
 
