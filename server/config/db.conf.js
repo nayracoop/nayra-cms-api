@@ -3,7 +3,8 @@ const { normalizeAndLogError } = require("../errors");
 
 class DBConfig {
   static init() {
-    const DB_URI = process.env.MONGO_DB_URI;
+    const env = process.env.NODE_ENV.toUpperCase();
+    const DB_URI = process.env[`DB_URI_${env}`];
 
     mongoose.connect(DB_URI, { useNewUrlParser: true, useCreateIndex: true });
     mongoose.connection.on("error", (error) => {
