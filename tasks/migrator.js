@@ -18,42 +18,6 @@ let db = null;
 let dbVersion = null;
 let somethingRan = false;
 
-const up = async (cb) => {
-  await setup();
-  getFiles((err, files) => {
-    if (err) {
-      console.error(err);
-      process.exit(0);
-    }
-    if (!files || !files.length) {
-      console.log("Nothing to migrate: no files");
-      if (!cb) {
-        process.exit(0);
-      } else {
-        cb(null);
-        return;
-      }
-    }
-
-    (function run (files) {
-      const file = files.shift();
-      if (file) {
-        tryToRun(file, () => {
-          run(files);
-        });
-      } else {
-        console.log(somethingRan ? "Migration successful" : "Nothing to migrate: already up to date");
-        client.close();
-        if (!cb) {
-          process.exit(0);
-        } else {
-          cb(null);
-        }
-      }
-    }(files));
-  });
-};
-
 const setup = async () => {
   console.log(`Connecting to this MongoDB: ${dbName}`);
   await client.connect();
@@ -63,9 +27,7 @@ const setup = async () => {
 
 const getFiles = (cb) => {
   let files = fs.readdirSync(migrationsPath);
-  files = _.sortBy(files, (file) => {
-    return file;
-  });
+  files = _.sortBy(files, file => file);
   cb(null, files);
 };
 
@@ -91,6 +53,7 @@ const checkIfRun = (version, cb) => {
 };
 
 const tryToRun = (file, cb) => {
+  // eslint-disable-next-line import/no-dynamic-require, global-require
   const migration = require(`${migrationsPath}/${file}`);
   const version = migration.getVersion();
 
@@ -100,7 +63,7 @@ const tryToRun = (file, cb) => {
       cb(err);
     } else if (not) {
       console.log(`Start migration to version: ${version}`);
-      migration.up(db, (err, result) => {
+      migration.up(db, (_err, result) => {
         if (err) {
           console.error(err);
           if (!cb) {
@@ -117,6 +80,43 @@ const tryToRun = (file, cb) => {
     } else {
       cb();
     }
+  });
+};
+
+const up = async (cb) => {
+  await setup();
+  getFiles((err, files) => {
+    if (err) {
+      console.error(err);
+      process.exit(0);
+    }
+    if (!files || !files.length) {
+      console.log("Nothing to migrate: no files");
+      if (!cb) {
+        process.exit(0);
+      } else {
+        cb(null);
+        return;
+      }
+    }
+
+    // eslint-disable-next-line no-shadow
+    (function run(files) {
+      const file = files.shift();
+      if (file) {
+        tryToRun(file, () => {
+          run(files);
+        });
+      } else {
+        console.log(somethingRan ? "Migration successful" : "Nothing to migrate: already up to date");
+        client.close();
+        if (!cb) {
+          process.exit(0);
+        } else {
+          cb(null);
+        }
+      }
+    }(files));
   });
 };
 
