@@ -7,8 +7,9 @@ require("dotenv").config({ path: "../.env" });
 const dbUsername = process.env.DB_USERNAME;
 const dbPassword = process.env.DB_PASSWORD;
 const dbLocalPort = process.env.DB_PORT;
+const dbHost = process.env.DB_HOST;
 
-const url = `mongodb://${dbUsername}:${dbPassword}@localhost:${dbLocalPort}`;
+const url = `mongodb://${dbUsername}:${dbPassword}@${dbHost}:${dbLocalPort}`;
 const dbName = process.env.DB_DATABASE;
 const client = new MongoClient(url, { useNewUrlParser: true });
 const migrationsPath = "./migrations";
