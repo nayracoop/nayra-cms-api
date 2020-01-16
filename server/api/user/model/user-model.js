@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 const mongoose = require("mongoose");
-const { BaseSchema } = require("../../base-schema");
+const { BaseSchema } = require("../../_base/model/base-model");
 
 const UserSchema = mongoose.Schema({
   // apiKey: {

@@ -9,9 +9,10 @@ const baseSchema = {
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", immutable: true },
   createdAt: { type: Date, immutable: true },
   updated: [updatedSubSchema],
-  deleted: { type: Boolean },
-  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  deletedAt: { type: Date }
+  deleted: { type: Boolean, immutable: true },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", immutable: true },
+  deletedAt: { type: Date, immutable: true },
+  uri: { type: String, trim: true, immutable: true }
 };
 
 module.exports = {
