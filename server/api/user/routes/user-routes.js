@@ -1,5 +1,5 @@
 const {
-  authJwt, checkJwt, shapeQuery
+  checkJwt, shapeQuery
 } = require("../../../middleware");
 const { UserSchema } = require("../model/user-model");
 const { UserController } = require("../controller/user-controller");
@@ -10,8 +10,8 @@ class UserRoutes {
 
     router
       .route("/api/users")
-      .post([authJwt, checkJwt, userController.createNew])
-      .get([authJwt, checkJwt, shapeQuery(UserSchema), userController.getAll]);
+      .post([checkJwt, userController.createNew])
+      .get([checkJwt, shapeQuery(UserSchema), userController.getAll]);
 
     router
       .route("/api/users/signup")
@@ -23,9 +23,9 @@ class UserRoutes {
 
     router
       .route("/api/users/:id")
-      .get([authJwt, checkJwt, userController.getById])
-      .put([authJwt, checkJwt, userController.updateById])
-      .delete([authJwt, checkJwt, userController.removeById]);
+      .get([checkJwt, userController.getById])
+      .put([checkJwt, userController.updateById])
+      .delete([checkJwt, userController.removeById]);
 
     router
       .route("/api/login")

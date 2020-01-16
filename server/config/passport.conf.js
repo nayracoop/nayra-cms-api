@@ -45,7 +45,7 @@ class PassportConfig {
         try {
           const user = await userDao.getByUsernameOrEmail(jwtPayload.username);
           if (!user) {
-            throw new AuthenticationError(3, 401, "Not authenticated.");
+            throw new AuthenticationError(7, 401, "Not authenticated.");
           }
           // const account = await accountDao.getById(user.accountId);
           // if (!account) {
