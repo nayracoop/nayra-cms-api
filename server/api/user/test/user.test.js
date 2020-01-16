@@ -74,8 +74,8 @@ describe("User", () => {
 
           // TO-DO check failed login attempts length is 1
           const users = fixtures.get("users").User;
-          const user = users.find(u => u.username === "username1");
-          console.log(user.failedLoginAttempts);
+          // const user = users.find(u => u.username === "username1");
+          // console.log(user.failedLoginAttempts);
           done();
         });
     });
@@ -87,12 +87,29 @@ describe("User", () => {
         .send({ username: "wrongUsername", password })
         .expect("Content-Type", /json/)
         .expect(401)
-        .expect((res) => {
-          res.body.name = "AuthenticationError";
-          res.body.code = 3;
-          res.body.message = "Not authenticated.";
-        })
-        .then(() => { done(); });
+        .then((res) => {
+          expect(res.body.name).to.eql("AuthenticationError");
+          expect(res.body.code).to.eql(3);
+          expect(res.body.message).to.eql("Not authenticated.");
+
+          done();
+        });
+    });
+
+    it("should return 500 if the provided username is not a string", (done) => {
+      request(app)
+        .post("/api/login")
+        .send({ username: ["hey", "notAstring"], password })
+        .expect("Content-Type", /json/)
+        .expect(500)
+        .then((res) => {
+          expect(res.body.name).to.eql("UnexpectedError");
+          expect(res.body.code).to.eql(99);
+          // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
+          expect(res.body.message).to.eql("user.toObject is not a function");
+
+          done();
+        });
     });
   });
 });
