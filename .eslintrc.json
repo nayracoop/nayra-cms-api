@@ -9,6 +9,10 @@
     "quotes": [2, "double", { "avoidEscape": true }],
     "comma-dangle": ["error", "never"]
   },
+  "env": {
+    "node": true,
+    "mocha": true
+  },
   "plugins": [
     "mocha"
   ]
