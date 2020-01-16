@@ -11,8 +11,7 @@ const checkJwt = async (req, res, next) => {
 
     passport.authenticate("jwt", { session: false })(req, res, next);
   } catch (error) {
-    // check api key loggea req en vez de res
-    const throwable = normalizeAndLogError("checkJwt", res, error);
+    const throwable = normalizeAndLogError("checkJwt", req, error);
     next(throwable);
   }
 };
