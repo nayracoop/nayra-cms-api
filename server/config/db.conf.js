@@ -4,8 +4,9 @@ const { normalizeAndLogError } = require("../errors");
 class DBConfig {
   static init() {
     const env = process.env.NODE_ENV.toUpperCase();
-    const DB_URI = process.env[`DB_URI_${env}`];
-
+    const uri_string = `DB_URI_${env}`;
+    const DB_URI = process.env[uri_string];
+    
     mongoose.connect(DB_URI, { useNewUrlParser: true, useCreateIndex: true });
     mongoose.connection.on("error", (error) => {
       const throwable = normalizeAndLogError("dbConnection", { id: -1 }, error);

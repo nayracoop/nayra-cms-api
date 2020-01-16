@@ -35,6 +35,10 @@ class LoggerConfig {
       level: "info"
     });
 
+    if (process.env.NODE_ENV === "test") {
+      loggerInstance.level(bunyan.FATAL + 1);
+    }
+
     app.use((req, res, next) => {
       const log = loggerInstance.child({
         id: req.id,

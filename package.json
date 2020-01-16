@@ -8,19 +8,12 @@
     "start": "node index",
     "dev": "nodemon index.js",
     "cms-init": "node cli/index.js init",
-    "coverage-server": "istanbul cover ./node_modules/mocha/bin/_mocha -- 'tests/server/**/*.js'",
-    "coveralls-server": "istanbul cover ./node_modules/mocha/bin/_mocha -- 'tests/server/**/*.js' --report lcovonly && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "migrations": "cd tasks && jake migrate",
     "nayra-cli:migration:add": "cd cli && node migration",
     "nayra-cli:add-resource": "cd cli && node add-resource",
-    "test": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha **/test/*.js",
-    "test-server": "jest"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "coveragePathIgnorePatterns": [
-      "/node_modules/"
-    ]
+    "test": "npm run test-server & npm run test-cli",
+    "test-cli": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha --recursive cli/**/test/*.js",
+    "test-server": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha --recursive server/**/test/*.js"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -65,10 +58,11 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.1",
+    "eslint-plugin-mocha": "^6.2.2",
     "faker": "^4.1.0",
     "jasmine-core": "^2.2.0",
-    "jest": "^24.9.0",
     "mocha": "^6.2.0",
+    "node-mongoose-fixtures": "^0.3.0",
     "nodemon": "^1.19.0",
     "nyc": "^14.1.1",
     "sinon": "^8.0.1",

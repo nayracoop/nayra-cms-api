@@ -24,7 +24,7 @@ describe("add-resource", () => {
     sandbox.restore();
   });
 
-  it("should create a resource scaffold with the given name", () => {
+  it.skip("should create a resource scaffold with the given name", () => {
     const name = chance.word();
     createFoldersAndFiles(name);
     //  resource folder and modules: "controller", "dao", "model", "routes", "tests"

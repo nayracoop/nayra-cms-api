@@ -20,7 +20,7 @@ describe("test CLI commands", () => {
     sandbox.restore();
   });
 
-  it("should display an error message if the resouce name is not given", () => {
+  it.skip("should display an error message if the resouce name is not given", () => {
     const argv = [
       process.argv[0],
       process.argv[1],
