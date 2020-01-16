@@ -23,3 +23,5 @@ const httpServer = http.createServer(app).listen(PORT, HOST, () => {
   LoggerConfig.getChild("server.js").info(`Server started on ${HOST}:${PORT}`);
   SocketIoConfig.init(httpServer);
 });
+
+module.exports = app;

@@ -12,8 +12,8 @@
     "nayra-cli:migration:add": "cd cli && node migration",
     "nayra-cli:add-resource": "cd cli && node add-resource",
     "test": "npm run test-server & npm run test-cli",
-    "test-cli": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha --recursive cli/**/test/*.js",
-    "test-server": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha --recursive server/**/test/*.js"
+    "test-cli": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha --recursive cli/**/test/*.js --exit",
+    "test-server": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha --recursive server/**/test/*.js --exit"
   },
   "dependencies": {
     "body-parser": "^1.18.3",

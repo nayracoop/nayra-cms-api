@@ -17,10 +17,10 @@ const UserSchema = mongoose.Schema({
     type: Boolean, trim: true, default: false
   },
   firstName: {
-    type: String, trim: true, index: { unique: true }
+    type: String, trim: true
   },
   lastName: {
-    type: String, trim: true, index: { unique: true }
+    type: String, trim: true
   },
   hash: { type: String, trim: true },
   salt: { type: String, trim: true },
