@@ -7,11 +7,49 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Mocha Test Program",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
+      "args": [
+          "--timeout",
+          "999999",
+          "--colors",
+          "${workspaceFolder}/server/**/test/*.js"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Mocha Test Current File",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
+      "args": [
+          "--timeout",
+          "999999",
+          "--colors",
+          "${file}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Launch Program",
       "program": "${workspaceFolder}/index.js",
       "restart": true,
       "runtimeExecutable": "nodemon",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "development"
+      }
     }
   ]
 }
