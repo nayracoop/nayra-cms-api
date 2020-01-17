@@ -32,14 +32,16 @@ const getFiles = (cb) => {
 };
 
 const setVersion = (version) => {
-  console.log(`Migrated to version: ${version}`);
-  somethingRan = true;
+  
 
   try {
     dbVersion.insertOne({
       script: version,
       applied: new Date().getTime()
     });
+
+    console.log(`Migrated to version: ${version}`);
+    somethingRan = true;
   } catch (err) {
     console.log(`Couldn't set the version to: ${version} ${err.message}`);
     process.exit(1);
