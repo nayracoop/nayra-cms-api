@@ -11,6 +11,7 @@ let loggerInstance;
 
 class LoggerConfig {
   static init(app) {
+    const test = process.env.NODE_ENV === "test";
     app.use(addRequestId);
 
     const reqSerializer = (req) => {
@@ -35,7 +36,7 @@ class LoggerConfig {
       level: "info"
     });
 
-    if (process.env.NODE_ENV === "test") {
+    if (test) {
       loggerInstance.level(bunyan.FATAL + 1);
     }
 
@@ -67,12 +68,12 @@ class LoggerConfig {
     const morganLoggerFormat = ':id [:date[web]] ":method :url" :status :response-time';
 
     app.use(morgan(morganLoggerFormat, {
-      skip: (req, res) => res.statusCode < 400,
+      skip: (req, res) => test || res.statusCode < 400,
       stream: process.stderr
     }));
 
     app.use(morgan(morganLoggerFormat, {
-      skip: (req, res) => res.statusCode >= 400,
+      skip: (req, res) => test || res.statusCode >= 400,
       stream: process.stdout
     }));
   }
