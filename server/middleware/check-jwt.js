@@ -3,7 +3,7 @@ const { normalizeAndLogError, AuthenticationError } = require("../errors");
 
 const checkJwt = async (req, res, next) => {
   try {
-    const authHeader = req.header("Authorization");
+    const authHeader = req.get("Authorization");
 
     if (!authHeader) {
       throw new AuthenticationError(5, 401, "Not authenticated.");
