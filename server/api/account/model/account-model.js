@@ -13,7 +13,7 @@ const AccountSchema = mongoose.Schema({
   isSuperAdmin: { type: Boolean, required: true, default: false },
   ...BaseSchema,
 }, {
-  collection: 'account',
+  collection: 'accounts',
   toJSON: {
     transform(doc, ret) {
       delete ret._id;
