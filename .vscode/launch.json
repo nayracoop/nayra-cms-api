@@ -44,7 +44,7 @@
       "name": "Launch Program",
       "program": "${workspaceFolder}/index.js",
       "restart": true,
-      "runtimeExecutable": "nodemon",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/nodemon/bin/nodemon.js",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
