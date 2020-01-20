@@ -29,13 +29,20 @@ const UserSchema = mongoose.Schema({
   ...BaseSchema
 }, {
   collection: "users",
+  // hide sensible data and include virtuals
   toJSON: {
     transform(doc, ret) {
-      delete ret._id;
+      delete ret.salt;
+      delete ret.hash;
+      delete ret.failedLoginAttempts;
+      delete ret.previousHashes;
+      //
+      return ret;
     },
     virtuals: true
   }
 });
+
 
 UserSchema.virtual("url").get(function url() { return `/api/users/${this._id}`; });
 

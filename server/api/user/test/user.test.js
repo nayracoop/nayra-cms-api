@@ -112,10 +112,10 @@ describe("User", () => {
           expect(res.body.name).to.eql("UnexpectedError");
           expect(res.body.code).to.eql(99);
           // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
-          expect(res.body.message).to.eql("user.toObject is not a function");
-
-          done();
+          expect(res.body.message).to.eql("user.toJSON is not a function");
         });
+
+      done();
     });
   });
 

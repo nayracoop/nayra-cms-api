@@ -69,9 +69,9 @@ class UserController extends BaseController {
         //   throw new AuthenticationError(10, 401, "Not authenticated.");
         // }
         // const token = jwt.sign(user.toObject(), account.privateKey);
-        const token = jwt.sign(user.toObject(), JWT_SECRET);
+        const token = jwt.sign(user.toJSON(), JWT_SECRET);
 
-        res.status(200).json({ user, token });
+        res.status(200).json({ user: user.toJSON(), token });
       } catch (error) {
         const throwable = normalizeAndLogError("User", res, error);
         next(throwable);
