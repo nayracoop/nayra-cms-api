@@ -2,10 +2,8 @@ const _ = require("lodash");
 const assert = require("assert");
 const moment = require("moment");
 const crypto = require("crypto");
-const mongoose = require("mongoose");
 
 const { BaseDao } = require("../../_base/dao/base-dao");
-const { UserSchema } = require("../model/user-model");
 
 class UserDao extends BaseDao {
   constructor(theSchema, theModelName) {
@@ -20,30 +18,6 @@ class UserDao extends BaseDao {
     //   const user = await this.model(theModelName).findOne({ apiKey });
     //   return user;
     // };
-
-    /**
-     * Create user (overrides base method)
-     */
-
-    this.theSchema.statics.createNew = async function createNew(thing, { _id: userId, accountId }) {
-      assert(thing.password, "Created user must have a password");
-
-      const Model = mongoose.model("User", UserSchema);
-      const newUser = new Model(thing);
-
-      const salt = crypto.randomBytes(16).toString("hex");
-      const hash = crypto.pbkdf2Sync(thing.password, salt, 1000, 64, "sha512").toString("hex");
-    
-      newUser.salt = salt;
-      newUser.hash = hash;
-
-      newUser.createdAt = moment().format();
-      newUser.createdBy = userId;
-      newUser.accountId = accountId;
-      const newThing = await newUser.save();
-      return newThing;
-    };
-
 
     /**
      * Read (by username)
