@@ -39,7 +39,7 @@ describe("User", () => {
 
     fixtures("users", (err, _data) => {
       if (err) {
-        console.error("fixture error", err);
+        console.error("Fixture error", err);
       }
     });
   });
@@ -48,7 +48,13 @@ describe("User", () => {
     fixtures.reset();
   });
 
-  context("login", () => {
+  context("POST api/login", () => {
+    // happy case : login, return 200, and return { ??? }
+    // wrong password : return 401, return x error, add a failed login attempt
+    // wrong password many times ? :
+    // unexisting username : 401 , return x error
+    // username || password not a string , return x error, (now returns 500 and internal server error)
+
     it("should login and return a token if a existing username and password are provided", (done) => {
       request(app)
         .post("/api/login")
@@ -111,5 +117,28 @@ describe("User", () => {
           done();
         });
     });
+  });
+
+  context("POST api/users/signup", () => {
+
+  });
+
+  context("POST api/users/confirmEmail", () => {
+
+  });
+
+  context("GET api/users  (get all)", () => {
+  });
+
+  context("POST api/users (create new)", () => {
+  });
+
+  context("GET api/users/:id  (get by Id)", () => {
+  });
+
+  context("PUT api/users/:id  (update by Id)", () => {
+  });
+
+  context("DELETED api/users/:id  (remove by Id)", () => {
   });
 });
