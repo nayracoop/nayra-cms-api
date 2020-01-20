@@ -61,8 +61,19 @@ describe("User", () => {
         .send({ username: "username1", password })
         .expect("Content-Type", /json/)
         .expect(200)
-        .then(() => {
-          // TO-DO what should login return?
+        .then((res) => {
+          assert(res.body.token, "body response should contain a token");
+          assert(res.body.user, "body response should contain a user object");
+          
+          // why is not accepting an array of keys?
+          // TODO define exactly which properties we need for user
+          expect(res.body.user).to.have.property("_id");
+          expect(res.body.user).to.have.property("username");
+          expect(res.body.user).to.have.property("email");
+          expect(res.body.user).to.have.property("accountId");
+          expect(res.body.user).to.have.property("url");
+          expect(res.body.user).to.have.property("deleted");
+          expect(res.body.user).to.not.have.property(["hash", "salt"]);
           done();
         });
     });
