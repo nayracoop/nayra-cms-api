@@ -21,11 +21,11 @@ class UserDao extends BaseDao {
     /**
      * Read (by username)
      */
-    this.theSchema.statics.getByUsernameOrEmail = async function getByUsernameOrEmail(usernameOrEmail) {
-      assert(_.isString(usernameOrEmail), new TypeError("Username is not a valid string."));
+    this.theSchema.statics.getByUsernameOrEmail = async function getByUsernameOrEmail(nameOrEmail) {
+      assert(_.isString(nameOrEmail), new TypeError("Username is not a valid string."));
 
       const user = await this.model(theModelName).findOne({
-        $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }]
+        $or: [{ username: nameOrEmail }, { email: nameOrEmail }]
       });
       return user;
     };
