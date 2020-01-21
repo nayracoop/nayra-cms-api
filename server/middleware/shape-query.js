@@ -29,6 +29,8 @@ const validateFieldsQuery = (model, fieldsQuery) => {
   const modelKeys = Object.keys(model.obj);
   Object.keys(fieldsQuery).forEach((key) => {
     assert(fieldIsContainedInModelKeys(modelKeys, key), `Filter for field defined (${key}) does not match a valid model property`);
+    // notForQuery is a custom property added in model in order to avoid queryinq by sensible data
+    assert(!model.obj[key].notForQuery, `Filter for field defined (${key}) is not permitted`);
   });
   Object.entries(fieldsQuery).forEach((entry) => {
     assert(entry[1] !== "", `Filter for field defined (${entry[0]}) cannot be empty`);

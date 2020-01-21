@@ -3,38 +3,45 @@ const request = require("supertest");
 const fixtures = require("node-mongoose-fixtures");
 const crypto = require("crypto");
 const { Types } = require("mongoose");
+const jwt = require("jsonwebtoken");
 
+let users = null;
+let token = null;
+const password = "123456";
+const salt = crypto.randomBytes(16).toString("hex");
 
 require("dotenv").config();
 
+// consider to use a secret for tests?
+const { JWT_SECRET } = process.env;
 const app = require("../../../server");
 
 describe("User", () => {
   // for test purposes, all passwords are '123456'
-  const password = "123456";
-
   before(() => {
-    const salt = crypto.randomBytes(16).toString("hex");
+    users = [
+      {
+        accountId: Types.ObjectId(),
+        username: "username1",
+        email: "username1@nayra.coop",
+        emailConfirmed: true,
+        hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+        salt
+      },
+      {
+        accountId: Types.ObjectId(),
+        username: "username2",
+        email: "username2@nayra.coop",
+        emailConfirmed: true,
+        hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+        salt
+      }
+    ];
+
+    token = jwt.sign(users[0], JWT_SECRET);
 
     fixtures.save("users", {
-      User: [
-        {
-          accountId: Types.ObjectId(),
-          username: "username1",
-          email: "username1@nayra.coop",
-          emailConfirmed: true,
-          hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
-          salt
-        },
-        {
-          accountId: Types.ObjectId(),
-          username: "username2",
-          email: "username2@nayra.coop",
-          emailConfirmed: true,
-          hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
-          salt
-        }
-      ]
+      User: users
     });
 
     fixtures("users", (err, _data) => {
@@ -62,9 +69,10 @@ describe("User", () => {
         .expect("Content-Type", /json/)
         .expect(200)
         .then((res) => {
+          // console.log(res.body);
           assert(res.body.token, "body response should contain a token");
           assert(res.body.user, "body response should contain a user object");
- 
+
           // why is not accepting an array of keys?
           // TODO define exactly which properties we need for user
           expect(res.body.user).to.have.property("_id");
@@ -142,6 +150,21 @@ describe("User", () => {
   });
 
   context("GET api/users  (get all)", () => {
+    it("should return a 422 error is query contain forbidden params", (done) => {
+      request(app)
+        .get("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .query({ username: "user", hash: "should not accept the hash" })
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(1);
+          // TO-DO define the propper error codes and mesagges for documentation and ussage
+          expect(res.body.message).to.eql("Filter for field defined (hash) is not permitted");
+          done();
+        })
+        .catch(done);
+    });
   });
 
   context("POST api/users (create new)", () => {

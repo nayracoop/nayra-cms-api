@@ -22,8 +22,12 @@ const UserSchema = mongoose.Schema({
   lastName: {
     type: String, trim: true
   },
-  hash: { type: String, trim: true },
-  salt: { type: String, trim: true },
+  hash: {
+    type: String, trim: true, notForQuery: true
+  },
+  salt: {
+    type: String, trim: true, notForQuery: true
+  },
   previousHashes: [{ type: String, trim: true }],
   failedLoginAttempts: [{ failedPassword: String, onDate: Date }],
   ...BaseSchema
