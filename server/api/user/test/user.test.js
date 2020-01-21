@@ -64,7 +64,7 @@ describe("User", () => {
         .then((res) => {
           assert(res.body.token, "body response should contain a token");
           assert(res.body.user, "body response should contain a user object");
-          
+ 
           // why is not accepting an array of keys?
           // TODO define exactly which properties we need for user
           expect(res.body.user).to.have.property("_id");
@@ -75,7 +75,8 @@ describe("User", () => {
           expect(res.body.user).to.have.property("deleted");
           expect(res.body.user).to.not.have.property(["hash", "salt"]);
           done();
-        });
+        })
+        .catch(done);
     });
 
     it("should return an error if the provided password is wrong and add a failed login attempt into the user", (done) => {
@@ -94,7 +95,8 @@ describe("User", () => {
           // const user = users.find(u => u.username === "username1");
           // console.log(user.failedLoginAttempts);
           done();
-        });
+        })
+        .catch(done);
     });
 
 
@@ -110,7 +112,8 @@ describe("User", () => {
           expect(res.body.message).to.eql("Not authenticated.");
 
           done();
-        });
+        })
+        .catch(done);
     });
 
     it("should return 500 if the provided username is not a string", (done) => {
@@ -124,9 +127,9 @@ describe("User", () => {
           expect(res.body.code).to.eql(99);
           // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
           expect(res.body.message).to.eql("user.toJSON is not a function");
-        });
-
-      done();
+          done();
+        })
+        .catch(done);
     });
   });
 
