@@ -2,9 +2,10 @@ const { expect, assert } = require("chai");
 const request = require("supertest");
 const fixtures = require("node-mongoose-fixtures");
 const crypto = require("crypto");
-const { Types } = require("mongoose");
+const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 
+let UserModel = null;
 let users = null;
 let token = null;
 const password = "123456";
@@ -18,7 +19,7 @@ const app = require("../../../server");
 
 users = [
   {
-    accountId: Types.ObjectId(),
+    accountId: mongoose.Types.ObjectId(),
     username: "username1",
     email: "username1@nayra.coop",
     emailConfirmed: true,
@@ -26,7 +27,7 @@ users = [
     salt
   },
   {
-    accountId: Types.ObjectId(),
+    accountId: mongoose.Types.ObjectId(),
     username: "username2",
     email: "username2@nayra.coop",
     emailConfirmed: true,
@@ -39,6 +40,7 @@ describe("User", () => {
   // for test purposes, all passwords are '123456'
   before(() => {
     fixtures.reset();
+    UserModel = mongoose.model("User");
   });
 
   beforeEach((done) => {
@@ -84,11 +86,12 @@ describe("User", () => {
         .catch(done);
     });
 
-    // wrong password check failed login attempt
     it("should return 401 if the provided password is wrong and add a failed login attempt into the user", (done) => {
+      const testUser = "username1";
+      const wrongPassword = "this is not a correct password";
       request(app)
         .post("/api/login")
-        .send({ username: "username1", password: "wrong password" })
+        .send({ username: testUser, password: wrongPassword })
         .expect("Content-Type", /json/)
         .expect(401)
         .then((res) => {
@@ -96,9 +99,11 @@ describe("User", () => {
           expect(res.body.code).to.eql(1); // incrrect user or password
           expect(res.body.message).to.eql("Not authenticated.");
 
-          // TO-DO check failed login attempts length is 1
-          // how to test data in db?
-          // console.log(user.failedLoginAttempts);
+          return UserModel.findOne({ username: testUser });
+        })
+        .then((user) => {
+          expect(user.failedLoginAttempts.length).to.eql(1);
+          expect(user.failedLoginAttempts[0].failedPassword).to.eql(wrongPassword);
           done();
         })
         .catch(done);
