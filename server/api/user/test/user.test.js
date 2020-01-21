@@ -38,10 +38,13 @@ users = [
 describe("User", () => {
   // for test purposes, all passwords are '123456'
   before(() => {
+    fixtures.reset();
   });
 
   beforeEach((done) => {
     token = jwt.sign(users[0], JWT_SECRET);
+
+    fixtures.reset();
 
     fixtures.save("users", {
       User: users
@@ -60,13 +63,7 @@ describe("User", () => {
   });
 
   context("POST api/login", () => {
-    // happy case : login, return 200, and return { ??? }
-    // wrong password : return 401, return x error, add a failed login attempt
-    // wrong password many times ? :
-    // unexisting username : 401 , return x error
-    // username || password not a string , return x error, (now returns 500 and internal server error)
-
-    it("should login and return a token if a existing username and password are provided", (done) => {
+    it("should login and return 200 and a token if a existing username and password are provided", (done) => {
       request(app)
         .post("/api/login")
         .send({ username: "username1", password })
@@ -87,7 +84,8 @@ describe("User", () => {
         .catch(done);
     });
 
-    it("should return an error if the provided password is wrong and add a failed login attempt into the user", (done) => {
+    // wrong password check failed login attempt
+    it("should return 401 if the provided password is wrong and add a failed login attempt into the user", (done) => {
       request(app)
         .post("/api/login")
         .send({ username: "username1", password: "wrong password" })
@@ -99,14 +97,12 @@ describe("User", () => {
           expect(res.body.message).to.eql("Not authenticated.");
 
           // TO-DO check failed login attempts length is 1
-          // const users = fixtures.get("users").User;
-          // const user = users.find(u => u.username === "username1");
+          // how to test data in db?
           // console.log(user.failedLoginAttempts);
           done();
         })
         .catch(done);
     });
-
 
     it("should return 401 if the provided username does not exist", (done) => {
       request(app)
@@ -139,8 +135,23 @@ describe("User", () => {
         })
         .catch(done);
     });
-  });
 
+    it("should return 500 if the provided password is not a string", (done) => {
+      request(app)
+        .post("/api/login")
+        .send({ username: "username1", password: ["hey", "notAstring"] })
+        .expect("Content-Type", /json/)
+        .expect(500)
+        .then((res) => {
+          expect(res.body.name).to.eql("UnexpectedError");
+          expect(res.body.code).to.eql(99);
+          // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
+          expect(res.body.message).to.eql("user.toJSON is not a function");
+          done();
+        })
+        .catch(done);
+    });
+  });
 
   context("GET api/users  (get all)", () => {
     it("should return a 422 error is query contain forbidden params", (done) => {
@@ -161,18 +172,6 @@ describe("User", () => {
   });
 
   context("POST api/users (create new)", () => {
-    // let token = null;
-    // beforeEach((done) => {
-    //   request(app)
-    //     .post("/api/login")
-    //     .send({ username: "username1", password })
-    //     .end((err, { body }) => {
-    //       token = body.token;
-    //       done();
-    //     });
-    // });
-
-    // happy case : create succesfully, return 201, and return { ??? }
     it("should create a user", (done) => {
       const newUser = {
         username: "newuser",
@@ -188,11 +187,10 @@ describe("User", () => {
         .send(newUser)
         .expect(201)
         .then((res) => {
-          // TODO define exactly which properties we need for user
           expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
             "emailConfirmed", "firstName", "lastName"]);
 
-          expect(res.body).to.not.have.property(["hash", "salt"]);
+          expect(res.body).to.not.have.property(["hash", "salt", "password"]);
 
           expect(res.body.username).to.eql(newUser.username);
           expect(res.body.email).to.eql(newUser.email);
@@ -203,11 +201,129 @@ describe("User", () => {
         .catch(done);
     });
 
-    // should create salt and hash from password
-    // no password : return return x error
-    // req.body is not an object : return return x error
-    // req.user is not an object (middleware error, jwt token user not valid)
-    // username || password not a string , return x error, (now returns 500 and internal server error)
+    // is it possible to test this? // should create salt and hash from password
+    it.skip("should create a salt and a hash from the password", (done) => {
+      const newUser = {
+        username: "newuser",
+        password,
+        email: "new@user.co",
+        firstName: "New",
+        lastName: "User"
+      };
+
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send(newUser)
+        .expect(201)
+        .then(() => {
+          // how to test data in db?
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if username or email are missing from req body", (done) => {
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ password: "newuser" })
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(80);
+          expect(res.body.message).to.eql("User validation failed: email: Path `email` is required., username: Path `username` is required.");
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if password is missing from req body", (done) => {
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ username: "newuser" })
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(1);
+          expect(res.body.message).to.eql("Created user must have a password");
+          done();
+        })
+        .catch(done);
+    });
+
+    // this is now returning the "password required" error.
+    it.skip("should return an error if req.body is not an object", (done) => {
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send("bananas")
+        .expect(422)
+        .then((res) => {
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if username is not a string", (done) => {
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ username: [], password: "secret", email: "usern@m.e" })
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(80);
+          expect(res.body.message).to.eql("User validation failed: username: Cast to String failed for value \"[]\" at path \"username\"");
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if email is not a string", (done) => {
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ username: "username", password: "secret", email: [] })
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(80);
+          expect(res.body.message).to.eql("User validation failed: email: Cast to String failed for value \"[]\" at path \"email\"");
+          done();
+        })
+        .catch(done);
+    });
+
+    // now returning unexpected error instead of validation error
+    it.skip("should return an error if password is not a string", (done) => {
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ username: "username", password: [], email: "user@name" })
+        .expect(500)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(80);
+          expect(res.body.message).to.eql("User validation failed: password: Cast to String failed for value \"[]\" at path \"password\"");
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if unvalid token is provided", (done) => {
+      request(app)
+        .post("/api/users")
+        .set("Authorization", "Bearer not a token")
+        .send({ username: "hello", password: "newuser" })
+        .expect(401)
+        .then((res) => {
+          expect(res.text).to.eql("Unauthorized");
+          done();
+        })
+        .catch(done);
+    });
   });
 
   context("GET api/users/:id  (get by Id)", () => {

@@ -40,9 +40,9 @@ class UserController extends BaseController {
           const opUser = req.user;
           // newUser.apiKey = buffer.toString("hex");
 
-          assert(newUser.password, "Created user must have a password");
           assert(_.isObject(newUser), "User is not a valid object.");
           assert(_.isObject(opUser), "opUser is not a valid object.");
+          assert(newUser.password, "Created user must have a password");
 
           const salt = crypto.randomBytes(16).toString("hex");
           const hash = crypto.pbkdf2Sync(newUser.password, salt, 1000, 64, "sha512").toString("hex");
