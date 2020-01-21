@@ -13,7 +13,7 @@ describe("User", () => {
   // for test purposes, all passwords are '123456'
   const password = "123456";
 
-  before(() => {
+  beforeEach((done) => {
     const salt = crypto.randomBytes(16).toString("hex");
 
     fixtures.save("users", {
@@ -41,10 +41,11 @@ describe("User", () => {
       if (err) {
         console.error("Fixture error", err);
       }
+      done();
     });
   });
 
-  after(() => {
+  afterEach(() => {
     fixtures.reset();
   });
 
@@ -64,15 +65,9 @@ describe("User", () => {
         .then((res) => {
           assert(res.body.token, "body response should contain a token");
           assert(res.body.user, "body response should contain a user object");
- 
-          // why is not accepting an array of keys?
           // TODO define exactly which properties we need for user
-          expect(res.body.user).to.have.property("_id");
-          expect(res.body.user).to.have.property("username");
-          expect(res.body.user).to.have.property("email");
-          expect(res.body.user).to.have.property("accountId");
-          expect(res.body.user).to.have.property("url");
-          expect(res.body.user).to.have.property("deleted");
+          expect(res.body.user).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
+            "emailConfirmed"]);
           expect(res.body.user).to.not.have.property(["hash", "salt"]);
           done();
         })
@@ -133,18 +128,58 @@ describe("User", () => {
     });
   });
 
-  context("POST api/users/signup", () => {
-
-  });
-
-  context("POST api/users/confirmEmail", () => {
-
-  });
 
   context("GET api/users  (get all)", () => {
+
   });
 
   context("POST api/users (create new)", () => {
+    let token = null;
+    beforeEach((done) => {
+      request(app)
+        .post("/api/login")
+        .send({ username: "username1", password })
+        .end((err, { body }) => {
+          token = body.token;
+          done();
+        });
+    });
+
+    // happy case : create succesfully, return 201, and return { ??? }
+    it("should create a user", (done) => {
+      const newUser = {
+        username: "newuser",
+        password,
+        email: "new@user.co",
+        firstName: "New",
+        lastName: "User"
+      };
+
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send(newUser)
+        .expect(201)
+        .then((res) => {
+          // TODO define exactly which properties we need for user
+          expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
+            "emailConfirmed", "firstName", "lastName"]);
+
+          expect(res.body).to.not.have.property(["hash", "salt"]);
+
+          expect(res.body.username).to.eql(newUser.username);
+          expect(res.body.email).to.eql(newUser.email);
+          expect(res.body.firstName).to.eql(newUser.firstName);
+          expect(res.body.lastName).to.eql(newUser.lastName);
+          done();
+        });
+    });
+
+    // should create salt and hash from password
+    // no password : return return x error
+    // req.body is not an object : return return x error
+    // req.user is not an object (middleware error, jwt token user not valid)
+    // username || password not a string , return x error, (now returns 500 and internal server error)
   });
 
   context("GET api/users/:id  (get by Id)", () => {
@@ -154,5 +189,13 @@ describe("User", () => {
   });
 
   context("DELETED api/users/:id  (remove by Id)", () => {
+  });
+
+  context("POST api/users/signup", () => {
+
+  });
+
+  context("POST api/users/confirmEmail", () => {
+
   });
 });
