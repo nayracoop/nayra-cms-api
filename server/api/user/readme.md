@@ -32,27 +32,28 @@
   #### Request
 ```
 {
-  email,
-  username,
-  password
+  username, // required
+  password, // required
   accountId,
+  firstName,
+  lastName,
+  email
 }
 ``` 
  #### Response
 ```
 {
-  // now it is returning the full user object
   "emailConfirmed",
   "deleted",
   "username",
   "email" ,
-  "accountId" ,
+  "accountId", // if not specified it is the creating user's account 
   "url" ,
   "id" ,
-  "firstName" // (if present),
-  "lastName" // (if present),
-  "createdAt" // (if present),
-  "createdBy" // (if present),
+  "firstName",
+  "lastName",
+  "createdAt", 
+  "createdBy",
 }
 ``` 
 

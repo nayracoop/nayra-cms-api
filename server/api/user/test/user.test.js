@@ -16,28 +16,31 @@ require("dotenv").config();
 const { JWT_SECRET } = process.env;
 const app = require("../../../server");
 
+users = [
+  {
+    accountId: Types.ObjectId(),
+    username: "username1",
+    email: "username1@nayra.coop",
+    emailConfirmed: true,
+    hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+    salt
+  },
+  {
+    accountId: Types.ObjectId(),
+    username: "username2",
+    email: "username2@nayra.coop",
+    emailConfirmed: true,
+    hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+    salt
+  }
+];
+
 describe("User", () => {
   // for test purposes, all passwords are '123456'
   before(() => {
-    users = [
-      {
-        accountId: Types.ObjectId(),
-        username: "username1",
-        email: "username1@nayra.coop",
-        emailConfirmed: true,
-        hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
-        salt
-      },
-      {
-        accountId: Types.ObjectId(),
-        username: "username2",
-        email: "username2@nayra.coop",
-        emailConfirmed: true,
-        hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
-        salt
-      }
-    ];
+  });
 
+  beforeEach((done) => {
     token = jwt.sign(users[0], JWT_SECRET);
 
     fixtures.save("users", {
@@ -48,10 +51,11 @@ describe("User", () => {
       if (err) {
         console.error("Fixture error", err);
       }
+      done();
     });
   });
 
-  after(() => {
+  afterEach(() => {
     fixtures.reset();
   });
 
@@ -75,12 +79,8 @@ describe("User", () => {
 
           // why is not accepting an array of keys?
           // TODO define exactly which properties we need for user
-          expect(res.body.user).to.have.property("_id");
-          expect(res.body.user).to.have.property("username");
-          expect(res.body.user).to.have.property("email");
-          expect(res.body.user).to.have.property("accountId");
-          expect(res.body.user).to.have.property("url");
-          expect(res.body.user).to.have.property("deleted");
+          expect(res.body.user).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
+            "emailConfirmed"]);
           expect(res.body.user).to.not.have.property(["hash", "salt"]);
           done();
         })
@@ -95,11 +95,11 @@ describe("User", () => {
         .expect(401)
         .then((res) => {
           expect(res.body.name).to.eql("AuthenticationError");
-          expect(res.body.code).to.eql(1);
+          expect(res.body.code).to.eql(1); // incrrect user or password
           expect(res.body.message).to.eql("Not authenticated.");
 
           // TO-DO check failed login attempts length is 1
-          const users = fixtures.get("users").User;
+          // const users = fixtures.get("users").User;
           // const user = users.find(u => u.username === "username1");
           // console.log(user.failedLoginAttempts);
           done();
@@ -141,13 +141,6 @@ describe("User", () => {
     });
   });
 
-  context("POST api/users/signup", () => {
-
-  });
-
-  context("POST api/users/confirmEmail", () => {
-
-  });
 
   context("GET api/users  (get all)", () => {
     it("should return a 422 error is query contain forbidden params", (done) => {
@@ -168,6 +161,53 @@ describe("User", () => {
   });
 
   context("POST api/users (create new)", () => {
+    // let token = null;
+    // beforeEach((done) => {
+    //   request(app)
+    //     .post("/api/login")
+    //     .send({ username: "username1", password })
+    //     .end((err, { body }) => {
+    //       token = body.token;
+    //       done();
+    //     });
+    // });
+
+    // happy case : create succesfully, return 201, and return { ??? }
+    it("should create a user", (done) => {
+      const newUser = {
+        username: "newuser",
+        password,
+        email: "new@user.co",
+        firstName: "New",
+        lastName: "User"
+      };
+
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send(newUser)
+        .expect(201)
+        .then((res) => {
+          // TODO define exactly which properties we need for user
+          expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
+            "emailConfirmed", "firstName", "lastName"]);
+
+          expect(res.body).to.not.have.property(["hash", "salt"]);
+
+          expect(res.body.username).to.eql(newUser.username);
+          expect(res.body.email).to.eql(newUser.email);
+          expect(res.body.firstName).to.eql(newUser.firstName);
+          expect(res.body.lastName).to.eql(newUser.lastName);
+          done();
+        })
+        .catch(done);
+    });
+
+    // should create salt and hash from password
+    // no password : return return x error
+    // req.body is not an object : return return x error
+    // req.user is not an object (middleware error, jwt token user not valid)
+    // username || password not a string , return x error, (now returns 500 and internal server error)
   });
 
   context("GET api/users/:id  (get by Id)", () => {
@@ -177,5 +217,13 @@ describe("User", () => {
   });
 
   context("DELETED api/users/:id  (remove by Id)", () => {
+  });
+
+  context("POST api/users/signup", () => {
+
+  });
+
+  context("POST api/users/confirmEmail", () => {
+
   });
 });
