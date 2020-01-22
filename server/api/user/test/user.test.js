@@ -72,12 +72,9 @@ describe("User", () => {
         .expect("Content-Type", /json/)
         .expect(200)
         .then((res) => {
-          // console.log(res.body);
           assert(res.body.token, "body response should contain a token");
           assert(res.body.user, "body response should contain a user object");
 
-          // why is not accepting an array of keys?
-          // TODO define exactly which properties we need for user
           expect(res.body.user).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
             "emailConfirmed"]);
           expect(res.body.user).to.not.have.property(["hash", "salt"]);
@@ -125,6 +122,7 @@ describe("User", () => {
         .catch(done);
     });
 
+    // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
     it("should return 500 if the provided username is not a string", (done) => {
       request(app)
         .post("/api/login")
@@ -134,13 +132,13 @@ describe("User", () => {
         .then((res) => {
           expect(res.body.name).to.eql("UnexpectedError");
           expect(res.body.code).to.eql(99);
-          // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
           expect(res.body.message).to.eql("user.toJSON is not a function");
           done();
         })
         .catch(done);
     });
 
+    // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
     it("should return 500 if the provided password is not a string", (done) => {
       request(app)
         .post("/api/login")
@@ -150,7 +148,6 @@ describe("User", () => {
         .then((res) => {
           expect(res.body.name).to.eql("UnexpectedError");
           expect(res.body.code).to.eql(99);
-          // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
           expect(res.body.message).to.eql("user.toJSON is not a function");
           done();
         })
@@ -159,6 +156,7 @@ describe("User", () => {
   });
 
   context("GET api/users  (get all)", () => {
+    // TO-DO define the propper error codes and mesagges for documentation and ussage
     it("should return a 422 error is query contain forbidden params", (done) => {
       request(app)
         .get("/api/users")
@@ -168,7 +166,6 @@ describe("User", () => {
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
           expect(res.body.code).to.eql(1);
-          // TO-DO define the propper error codes and mesagges for documentation and ussage
           expect(res.body.message).to.eql("Filter for field defined (hash) is not permitted");
           done();
         })
@@ -206,8 +203,7 @@ describe("User", () => {
         .catch(done);
     });
 
-    // is it possible to test this? // should create salt and hash from password
-    it.skip("should create a salt and a hash from the password", (done) => {
+    it("should create a salt and a hash from the password", (done) => {
       const newUser = {
         username: "newuser",
         password,
@@ -221,8 +217,11 @@ describe("User", () => {
         .set("Authorization", `Bearer ${token}`)
         .send(newUser)
         .expect(201)
-        .then(() => {
-          // how to test data in db?
+        .then(() => UserModel.findOne({ username: newUser.username }))
+        .then((user) => {
+          expect(user.salt).to.be.a("string");
+          expect(user.hash).to.be.a("string");
+          expect(user.hash).to.eql(crypto.pbkdf2Sync(newUser.password, user.salt, 1000, 64, "sha512").toString("hex"));
           done();
         })
         .catch(done);
