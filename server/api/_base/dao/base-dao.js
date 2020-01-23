@@ -11,12 +11,15 @@ class BaseDao {
     /**
      * Create
      */
-    this.theSchema.statics.createNew = async function createNew(thing, { _id: userId, accountId }) {
+    this.theSchema.statics.createNew = async function createNew(thing, creator) {
       const Model = this.getModel();
       const something = new Model(thing);
+      if (creator) {
+        const { _id: userId, accountId } = creator;
+        something.createdBy = userId;
+        something.accountId = accountId;
+      }
       something.createdAt = moment().format();
-      something.createdBy = userId;
-      something.accountId = accountId;
       const newThing = await something.save();
       return newThing;
     }.bind(this);
@@ -61,7 +64,7 @@ class BaseDao {
     };
 
     this.theSchema.statics.removeById = async function removeById(_id, { _id: userId, accountId }) {
-      const deleteResults = await this.model(theModelName).delete({ _id, accountId, delete: false },
+      const deleteResults = await this.model(theModelName).delete({ _id, accountId },
         userId);
       return deleteResults;
     };

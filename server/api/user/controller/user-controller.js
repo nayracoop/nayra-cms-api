@@ -113,16 +113,21 @@ class UserController extends BaseController {
         if (err) {
           res.status(500).send(err.toString());
         } else {
-          const accountDao = new this.Account(AccountSchema, "Account");
           const newUser = req.body;
 
           assert(_.isObject(newUser), "User is not a valid object.");
 
           // newUser.apiKey = buffer.toString("hex");
           if (!newUser.accountId) {
-            const demoAccounts = await accountDao.getAll({ name: "demo" });
+            const demoAccounts = await this.account.getAll({ name: "demo" });
             newUser.accountId = demoAccounts[0]._id;
           }
+
+          const salt = crypto.randomBytes(16).toString("hex");
+          const hash = crypto.pbkdf2Sync(newUser.password, salt, 1000, 64, "sha512").toString("hex");
+          newUser.salt = salt;
+          newUser.hash = hash;
+
           const user = await this.user.createNew(newUser, null);
           res.status(201).json(user);
         }
