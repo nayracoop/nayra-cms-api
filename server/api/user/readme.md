@@ -61,6 +61,7 @@
   #### Request 
 ```
 {
+  **perPage**, // defaults to 5
   firstName,
   lastName,
   email,

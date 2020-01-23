@@ -15,6 +15,10 @@ describe("checkJwt middleware", () => {
 
     checkJwt(req, res, (error) => {
       expect(error).to.be.an.instanceof(AuthenticationError);
+      console.log(error);
     });
   });
+
+  //passport authenticate jwt : good case (add user to res) 
+  //passport authenticate jwt : bad case
 });
