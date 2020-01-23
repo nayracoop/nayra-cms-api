@@ -6,10 +6,12 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 
 let UserModel = null;
-let users = null;
 let token = null;
 const password = "123456";
 const salt = crypto.randomBytes(16).toString("hex");
+const testAccountId = mongoose.Types.ObjectId();
+const adminId = mongoose.Types.ObjectId();
+
 
 require("dotenv").config();
 
@@ -17,9 +19,10 @@ require("dotenv").config();
 const { JWT_SECRET } = process.env;
 const app = require("../../../server");
 
-users = [
+const users = [
   {
-    accountId: mongoose.Types.ObjectId(),
+    _id: adminId,
+    accountId: testAccountId,
     username: "username1",
     email: "username1@nayra.coop",
     emailConfirmed: true,
@@ -27,7 +30,7 @@ users = [
     salt
   },
   {
-    accountId: mongoose.Types.ObjectId(),
+    accountId: testAccountId,
     username: "username2",
     email: "username2@nayra.coop",
     emailConfirmed: true,
@@ -45,8 +48,6 @@ describe("User", () => {
 
   beforeEach((done) => {
     token = jwt.sign(users[0], JWT_SECRET);
-
-    fixtures.reset();
 
     fixtures.save("users", {
       User: users
@@ -331,12 +332,217 @@ describe("User", () => {
   });
 
   context("GET api/users/:id  (get by Id)", () => {
+    // should get user by id
+    // should get user from another account
+    // should throw an error if the provided id doesn't belong to an existing record
+    // should throw an error if unvalid token is provided
   });
 
   context("PUT api/users/:id  (update by Id)", () => {
+    const userToUpdateId = mongoose.Types.ObjectId();
+    const userFromAnotherAccountId = mongoose.Types.ObjectId();
+
+    beforeEach((done) => {
+      fixtures.save("users", {
+        User: [
+          {
+            _id: userToUpdateId,
+            accountId: testAccountId,
+            username: "test",
+            email: "test@nayra.coop",
+            emailConfirmed: true,
+            hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+            salt
+          },
+          {
+            _id: userFromAnotherAccountId,
+            accountId: mongoose.Types.ObjectId(),
+            username: "fromOtherAccount",
+            email: "fromOtherAccount@nayra.coop",
+            emailConfirmed: true,
+            hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+            salt
+          }
+        ]
+      });
+
+      fixtures("users", (err, _data) => {
+        if (err) {
+          console.error("Fixture error", err);
+        }
+        done();
+      });
+    });
+
+    // should update and add updated at field
+    it("should update and add updated at field", (done) => {
+      request(app)
+        .put(`/api/users/${userToUpdateId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ firstName: "Updated!", lastName: "Well done!" })
+        .expect(200)
+        .then(() => UserModel.findOne({ username: "test" }))
+        .then((user) => {
+          expect(user.firstName).to.eql("Updated!");
+          expect(user.lastName).to.eql("Well done!");
+          expect(user.updated.length).to.eql(1);
+          expect(user.updated[0].by).to.eql(adminId);
+
+          done();
+        })
+        .catch(done);
+    });
+
+    // should not add invalid fields
+    it("should not add invalid fields", (done) => {
+      request(app)
+        .put(`/api/users/${userToUpdateId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ coolField: "i want to be in the user too!" })
+        .expect(200)
+        .then(() => UserModel.findOne({ username: "test" }))
+        .then((user) => {
+          expect(user.coolField).to.eql(undefined);
+          done();
+        })
+        .catch(done);
+    });
+
+    // should throw an error if the provided id doesn't belong to an existing record
+    it("should not be able to delete a user record from another account", (done) => {
+      request(app)
+        .put(`/api/users/${userFromAnotherAccountId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ firstName: "Updated!", lastName: "Well done!" })
+        .expect(404)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(70);
+          expect(res.body.message).to.eql("Users not found.");
+
+          return UserModel.findOne({ _id: userFromAnotherAccountId });
+        })
+        .then((user) => {
+          expect(user.deleted).to.eql(false);
+          done();
+        })
+        .catch(done);
+    });
+
+    // should throw an error if unvalid token is provided
+    it("should return an error if unvalid token is provided", (done) => {
+      request(app)
+        .put(`/api/users/${userToUpdateId}`)
+        .set("Authorization", "Bearer not a token")
+        .send({ firstName: "Updated!", lastName: "Well done!" })
+        .expect(401)
+        .then((res) => {
+          expect(res.text).to.eql("Unauthorized");
+          done();
+        })
+        .catch(done);
+    });
   });
 
   context("DELETED api/users/:id  (remove by Id)", () => {
+    const userToDeleteId = mongoose.Types.ObjectId();
+    const userFromAnotherAccountId = mongoose.Types.ObjectId();
+
+    beforeEach((done) => {
+      fixtures.save("users", {
+        User: [
+          {
+            _id: userToDeleteId,
+            accountId: testAccountId,
+            username: "test",
+            email: "test@nayra.coop",
+            emailConfirmed: true,
+            hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+            salt
+          },
+          {
+            _id: userFromAnotherAccountId,
+            accountId: mongoose.Types.ObjectId(),
+            username: "fromOtherAccount",
+            email: "fromOtherAccount@nayra.coop",
+            emailConfirmed: true,
+            hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+            salt
+          }
+        ]
+      });
+
+      fixtures("users", (err, _data) => {
+        if (err) {
+          console.error("Fixture error", err);
+        }
+        done();
+      });
+    });
+
+    it("should delete a user record", (done) => {
+      request(app)
+        .delete(`/api/users/${userToDeleteId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204)
+        .then(() => UserModel.findOne({ username: "test"}))
+        .then((user) => {
+          expect(user).to.eql(null);
+          done();
+        })
+        .catch(done);
+    });
+
+    // now re-deleting deleted:true records. TO-DO: catch error and return User not found
+    it.skip("should delete a user record", (done) => {
+      request(app)
+        .delete(`/api/users/${userToDeleteId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204)
+        .then(() => UserModel.findOne({ username: "test"}))
+        .then((user) => {
+          expect(user).to.eql(null);
+          request(app)
+            .delete(`/api/users/${userToDeleteId}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(404)
+            .then(() => {
+              done();
+            });
+        })
+        .catch(done);
+    });
+
+    it("should not be able to delete a user record from another account", (done) => {
+      request(app)
+        .delete(`/api/users/${userFromAnotherAccountId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(70);
+          expect(res.body.message).to.eql("Users not found.");
+
+          return UserModel.findOne({ _id: userFromAnotherAccountId });
+        })
+        .then((user) => {
+          expect(user.deleted).to.eql(false);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if unvalid token is provided", (done) => {
+      request(app)
+        .delete(`/api/users/${userToDeleteId}`)
+        .set("Authorization", "Bearer not a token")
+        .expect(401)
+        .then((res) => {
+          expect(res.text).to.eql("Unauthorized");
+          done();
+        })
+        .catch(done);
+    });
   });
 
   context("POST api/users/signup", () => {
