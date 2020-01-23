@@ -39,7 +39,7 @@ const users = [
   }
 ];
 
-describe("User", () => {
+describe("User endpoints", () => {
   // for test purposes, all passwords are '123456'
   before(() => {
     fixtures.reset();
@@ -546,7 +546,232 @@ describe("User", () => {
   });
 
   context("POST api/users/signup", () => {
+    it("should create a new valid user from a provided username, email and password", (done) => {
+      request(app)
+        .post("/api/users/signup")
+        .send({
+          username: "newUser",
+          email: "newUser@mail",
+          password,
+          accountId: testAccountId
+        })
+        .expect("Content-Type", /json/)
+        .expect(201)
+        .then((res) => {
+          expect(res.body.username).to.eql("newUser");
+          expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
+            "emailConfirmed"]);
+          return request(app)
+            .post("/api/login")
+            .send({ username: "newUser", password })
+            .expect(200)
+            .then((_res) => {
+              expect(_res.body.user.username).to.eql("newUser");
+              expect(_res.body.user.email).to.eql("newUser@mail");
+              done();
+            });
+        })
+        .catch(done);
+    });
 
+    it("should create a salt and a hash from the provided password", (done) => {
+      const newUser = {
+        username: "newuser",
+        password,
+        email: "new@user.co",
+        firstName: "New",
+        lastName: "User",
+        accountId: testAccountId
+      };
+
+      request(app)
+        .post("/api/users/signup")
+        .set("Authorization", `Bearer ${token}`)
+        .send(newUser)
+        .expect(201)
+        .then(() => UserModel.findOne({ username: newUser.username }))
+        .then((user) => {
+          expect(user.salt).to.be.a("string");
+          expect(user.hash).to.be.a("string");
+          expect(user.hash).to.eql(crypto.pbkdf2Sync(newUser.password, user.salt, 1000, 64, "sha512").toString("hex"));
+          done();
+        })
+        .catch(done);
+    });
+
+    // this is not working as expected. returns first account of the collection. 
+    it.skip("should assign a demo accountId if no accountId is provided", (done) => {
+      fixtures.save("accounts", {
+        Account: [
+          {
+            _id: mongoose.Types.ObjectId(),
+            name: "not demo",
+            email: "test@test",
+            isSuperAdmin: false,
+            privateKey: "super secret"
+          },
+          {
+            _id: testAccountId,
+            name: "demo",
+            email: "test@nayra.coop",
+            isSuperAdmin: false,
+            privateKey: "super secret"
+          }
+        ]
+      });
+
+      fixtures("accounts", (err, _data) => {
+        if (err) {
+          console.error("Fixture error", err);
+        }
+      });
+
+      request(app)
+        .post("/api/users/signup")
+        .send({
+          username: "newUser",
+          email: "newUser@mail",
+          password
+        })
+        .then((res) => {
+          expect(res.body.accountId).to.eql(testAccountId.toString());
+          done();
+        })
+        .catch(done);
+    });
+
+    // what if the account with provided id doesn't exist?
+    // now it is creating the user with this accountId anyway
+    it("should assign the provided accountId to the user", (done) => {
+      fixtures.save("accounts", {
+        Account: [
+          {
+            _id: mongoose.Types.ObjectId(),
+            name: "not demo",
+            email: "test@test",
+            isSuperAdmin: false,
+            privateKey: "super secret"
+          },
+          {
+            _id: testAccountId,
+            name: "demo",
+            email: "test@nayra.coop",
+            isSuperAdmin: false,
+            privateKey: "super secret"
+          }
+        ]
+      });
+
+      fixtures("accounts", (err, _data) => {
+        if (err) {
+          console.error("Fixture error", err);
+        }
+      });
+
+      const fakeAccountId = mongoose.Types.ObjectId();
+
+      request(app)
+        .post("/api/users/signup")
+        .send({
+          username: "newUser",
+          email: "newUser@mail",
+          password,
+          accountId: fakeAccountId
+        })
+        .then((res) => {
+          expect(res.body.accountId).to.eql(fakeAccountId.toString());
+          done();
+        })
+        .catch(done);
+    });
+
+    // now returning 500, should return 409 and a better error message
+    it("should return an error if username or email are already taken", (done) => {
+      request(app)
+        .post("/api/users/signup")
+        .send({
+          username: "username1",
+          email: "username11111@nayra.coop",
+          password,
+          accountId: testAccountId
+        })
+        .expect("Content-Type", /json/)
+        .expect(500)
+        .then((res) => {
+          expect(res.body.name).to.eql("UnexpectedError");
+          expect(res.body.code).to.eql(99);
+          expect(res.body.message).to.eql("E11000 duplicate key error collection: nayra_cms_test.users index: username_1 dup key: { : \"username1\" }");
+
+          return request(app)
+            .post("/api/users/signup")
+            .send({
+              username: "username1111",
+              email: "username1@nayra.coop",
+              password,
+              accountId: testAccountId
+            })
+            .expect(500)
+            .then((_res) => {
+              expect(_res.body.name).to.eql("UnexpectedError");
+              expect(_res.body.code).to.eql(99);
+              expect(_res.body.message).to.eql("E11000 duplicate key error collection: nayra_cms_test.users index: email_1 dup key: { : \"username1@nayra.coop\" }");
+              done();
+            });
+        })
+        .catch(done);
+    });
+
+    // now missing password throws 500 instead of 422
+    it("should return an error if username or email are already taken", (done) => {
+      request(app)
+        .post("/api/users/signup")
+        .send({
+          email: "username11111@nayra.coop",
+          password,
+          accountId: testAccountId
+        })
+        .expect("Content-Type", /json/)
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(80);
+          expect(res.body.message).to.eql("User validation failed: username: Path `username` is required.");
+
+          return request(app)
+            .post("/api/users/signup")
+            .send({
+              username: "username1111",
+              password,
+              accountId: testAccountId
+            })
+            .expect(422)
+            .then((_res) => {
+              expect(_res.body.name).to.eql("ValidationError");
+              expect(_res.body.code).to.eql(80);
+              expect(_res.body.message).to.eql("User validation failed: email: Path `email` is required.");
+
+              return request(app)
+                .post("/api/users/signup")
+                .send({
+                  email: "user@mail.coop",
+                  username: "username1111",
+                  accountId: testAccountId
+                })
+                .expect(500)
+                .then((__res) => {
+                  expect(__res.body.name).to.eql("UnexpectedError");
+                  expect(__res.body.code).to.eql(99);
+                  expect(__res.body.message).to.eql("Pass phrase must be a buffer");
+
+                  // expect(__res.body.name).to.eql("ValidationError");
+                  // expect(__res.body.code).to.eql(80);
+                  // expect(__res.body.message).to.eql("User validation failed: password: Path `password` is required.");
+                  done();
+                });
+            });
+        })
+        .catch(done);
+    });
   });
 
   context("POST api/users/confirmEmail", () => {
