@@ -37,14 +37,36 @@ const validateFieldsQuery = (model, fieldsQuery) => {
   });
 };
 
-const castQueryToRegex = (query) => {
+const castQueryToRegex = (model, query) => {
   const regexQuery = {};
+
   Object.entries(query).forEach((entry) => {
-    regexQuery[entry[0]] = { $regex: new RegExp(entry[1], "ig") };
+    const key = entry[0];
+    if (model.obj[key].type !== String) {
+      regexQuery[key] =  entry[1];
+    } else {
+      regexQuery[key] = { $regex: new RegExp(entry[1], "ig") };
+    }
   });
   return regexQuery;
 };
 
+const castBooleanParams = (model, fieldsQuery) => {
+  const query = {};
+  Object.keys(fieldsQuery).forEach((key) => {
+    if (model.obj[key].type === Boolean) {
+
+      query[key] = fieldsQuery[key] === "true" ? true : false;
+    } else {
+      query[key] = fieldsQuery[key];
+    }
+  });
+
+  return query;
+};
+
+// TO DO refactor in order to avoid many loops of params array/object
+// castQueryToRegex and  castBooleanParams can be maybe unified
 const shapeQuery = model => async (req, res, next) => {
   try {
     const { query: reqQuery } = req;
@@ -54,13 +76,14 @@ const shapeQuery = model => async (req, res, next) => {
 
     validatePaginationQuery(model, reqQuery);
     validateFieldsQuery(model, query);
+    const queryWithBooleans = castBooleanParams(model, query);
 
     const limit = +perPage || 5;
     const currentPage = +page || 1;
     const skip = +limit * (+currentPage - 1) || 0;
     const select = showUpdates === "true" ? "+updated" : "-updated";
     const sort = sortBy || "_id";
-    const regexQuery = castQueryToRegex(query);
+    const regexQuery = castQueryToRegex(model, queryWithBooleans);
     req.shapedQuery = {
       skip,
       limit,
@@ -70,6 +93,7 @@ const shapeQuery = model => async (req, res, next) => {
     };
     next();
   } catch (error) {
+    console.log("Error");
     const throwable = normalizeAndLogError("shapeQuery", req, error);
     next(throwable);
   }

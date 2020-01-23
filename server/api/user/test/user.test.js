@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 
+const accountId = mongoose.Types.ObjectId();
 let UserModel = null;
 let users = null;
 let token = null;
@@ -17,9 +18,10 @@ require("dotenv").config();
 const { JWT_SECRET } = process.env;
 const app = require("../../../server");
 
+
 users = [
   {
-    accountId: mongoose.Types.ObjectId(),
+    accountId,
     username: "username1",
     email: "username1@nayra.coop",
     emailConfirmed: true,
@@ -27,7 +29,7 @@ users = [
     salt
   },
   {
-    accountId: mongoose.Types.ObjectId(),
+    accountId,
     username: "username2",
     email: "username2@nayra.coop",
     emailConfirmed: true,
@@ -156,6 +158,55 @@ describe("User", () => {
   });
 
   context("GET api/users  (get all)", () => {
+    it("should return an object with all users", (done) => {
+      request(app)
+        .get("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).to.include.keys(["count", "list"]);
+          expect(res.body.count).to.be.eql(users.length);
+          // be carefull someday pagination could change this
+          expect(res.body.list.length).to.be.eql(users.length);
+          // maybe should check if id of response are contained in users fixtures
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should filter users by username query param", (done) => {
+      request(app)
+        .get("/api/users")
+        .query({ username: "ame1" })
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).to.include.keys(["count", "list"]);
+          expect(res.body.count).to.be.eql(users.length);
+          expect(res.body.list.length).to.be.eql(1);
+          expect(res.body.list[0].username).to.be.eql(users[0].username);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return accept a boolean query param", (done) => {
+      request(app)
+        .get("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .query({ emailConfirmed: "true" })
+        .expect(200)
+        .then((res) => {
+          expect(res.body).to.include.keys(["count", "list"]);
+          expect(res.body.count).to.be.eql(users.length);
+          // be carefull someday pagination could change this
+          expect(res.body.list.length).to.be.eql(users.length);
+          // maybe should check if id of response are contained in users fixtures
+          done();
+        })
+        .catch(done);
+    });
+
     // TO-DO define the propper error codes and mesagges for documentation and ussage
     it("should return a 422 error is query contain forbidden params", (done) => {
       request(app)
