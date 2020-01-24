@@ -31,7 +31,7 @@ class BaseDao {
       sort,
       query
     }, { accountId }) {
-      const thingsCount = await this.model(theModelName).countDocuments({ deleted: false });
+      const thingsCount = await this.model(theModelName).countDocuments({ deleted: false, accountId });
       const things = await this.model(theModelName).find({
         ...query, accountId
       }).skip(skip)

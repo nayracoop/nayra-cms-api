@@ -36,8 +36,19 @@ const users = [
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
     salt
+  },
+  {
+    accountId: mongoose.Types.ObjectId(),
+    username: "userFromOtherAccount",
+    email: "mariana@notnayra.coop",
+    emailConfirmed: true,
+    hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+    salt
   }
 ];
+
+// users from nayra account
+const usersCount = users.length - 1;
 
 describe("User endpoints", () => {
   // for test purposes, all passwords are '123456'
@@ -157,16 +168,16 @@ describe("User endpoints", () => {
   });
 
   context("GET api/users  (get all)", () => {
-    it("should return an object with all users", (done) => {
+    it("should return an object with all users from same account", (done) => {
       request(app)
         .get("/api/users")
         .set("Authorization", `Bearer ${token}`)
         .expect(200)
         .then((res) => {
           expect(res.body).to.include.keys(["count", "list"]);
-          expect(res.body.count).to.be.eql(users.length);
+          expect(res.body.count).to.be.eql(usersCount);
           // be carefull someday pagination could change this
-          expect(res.body.list.length).to.be.eql(users.length);
+          expect(res.body.list.length).to.be.eql(usersCount);
           // maybe should check if id of response are contained in users fixtures
           done();
         })
@@ -181,7 +192,7 @@ describe("User endpoints", () => {
         .expect(200)
         .then((res) => {
           expect(res.body).to.include.keys(["count", "list"]);
-          expect(res.body.count).to.be.eql(users.length);
+          expect(res.body.count).to.be.eql(usersCount);
           expect(res.body.list.length).to.be.eql(1);
           expect(res.body.list[0].username).to.be.eql(users[0].username);
           done();
@@ -197,9 +208,9 @@ describe("User endpoints", () => {
         .expect(200)
         .then((res) => {
           expect(res.body).to.include.keys(["count", "list"]);
-          expect(res.body.count).to.be.eql(users.length);
+          expect(res.body.count).to.be.eql(usersCount);
           // be carefull someday pagination could change this
-          expect(res.body.list.length).to.be.eql(users.length);
+          expect(res.body.list.length).to.be.eql(usersCount);
           // maybe should check if id of response are contained in users fixtures
           done();
         })
