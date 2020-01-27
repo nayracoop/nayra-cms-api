@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { stub, match } = require("sinon");
 const { mockRequest, mockResponse } = require("mock-req-res");
-const { checkJwt } = require("../check-jwt");
+const { shapeQuery } = require("../shape-query");
 const { AuthenticationError } = require("../../errors");
 
 require("dotenv").config();
