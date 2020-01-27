@@ -1,72 +1,70 @@
 const { expect } = require("chai");
-const { stub, match } = require("sinon");
-const { mockRequest, mockResponse } = require("mock-req-res");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
 const fixtures = require("node-mongoose-fixtures");
 const jwt = require("jsonwebtoken");
+const request = require("supertest");
 
 const { checkJwt } = require("../check-jwt");
-const { AuthenticationError } = require("../../errors");
 
 require("dotenv").config();
-require("../../server");
+const app = require("../../server");
 // consider to use a secret for tests?
 const { JWT_SECRET } = process.env;
 
 describe("checkJwt middleware", () => {
-  const res = mockResponse();
-
-  it("should throw AuthenticationError if Authorization header is not present", () => {
-    const req = mockRequest({ body: { } });
-
-    checkJwt(req, res, (error) => {
-      expect(error).to.be.an.instanceof(AuthenticationError);
-      expect(error.code).to.be.eql(5);
-      expect(error.statusCode).to.be.eql(401);
-      expect(error.message).to.be.eql("Not authenticated.");
-    });
+  afterEach(() => {
+    fixtures.reset();
   });
 
-  // currently not throwing error and not authenticating either
-  it.skip("should throw AuthenticationError if Authorization token is not valid", () => {
-    const req = mockRequest({
-      body: { },
-      headers: { Authorization: "Bearer token" },
-      get(name) {
-        if (name === "Authorization") return this.headers.Authorization;
-        return null;
+  it("should throw AuthenticationError if Authorization header is not present", (done) => {
+    request(app)
+      .get("/api/users")
+      .expect(401)
+      .then((res) => {
+        expect(res.body.name).to.be.eql("AuthenticationError");
+        expect(res.body.code).to.be.eql(5);
+        expect(res.body.message).to.be.eql("Not authenticated.");
+        done();
+      })
+      .catch(done);
+  });
+
+  it("should throw AuthenticationError if Authorization token is not valid", (done) => {
+    const expectedError = {
+      error: {
+        code: "INVALID_AUTHORIZATION_CODE",
+        message: "Invalid authorization code"
       }
-    });
-    checkJwt(req, res, (error) => {
-      // it is not getting here
-      console.log(error);
-      expect(error).to.be.eql("helo");
-    }).catch((error) => {
-      return console.log(error);
-    });
+    };
+
+    request(app)
+      .get("/api/users")
+      .set("Authorization", "Bearer notAtoken")
+      .expect(401)
+      .then((res) => {
+        expect(res.body).to.eql(expectedError);
+        done();
+      })
+      .catch(done);
   });
 
-  // error valid token belongs to unexisting user (error 7)
-  it.skip("should throw AuthenticationError if Authorization token is not valid", () => {
+  it("should throw AuthenticationError if Authorization token belongs to unexisting user", (done) => {
     const token = jwt.sign({ username: "test", email: "test@test" }, JWT_SECRET);
-    const req = mockRequest({
-      body: { },
-      headers: { Authorization: `Bearer ${token}` },
-      get(name) {
-        if (name === "Authorization") return this.headers.Authorization;
-        return null;
-      }
-    });
-
-    checkJwt(req, res, (error) => {
-      expect(error).to.be.an.instanceof(AuthenticationError);
-      console.log(error);
-    });
+    request(app)
+      .get("/api/users")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(401)
+      .then((res) => {
+        expect(res.body.name).to.be.eql("AuthenticationError");
+        expect(res.body.code).to.be.eql(7);
+        expect(res.body.message).to.be.eql("Not authenticated.");
+        done();
+      })
+      .catch(done);
   });
 
-  // happy case: token belongs to existing user
-  it.skip("should throw AuthenticationError if Authorization token is not valid", (done) => {
+  it("should add user to req if token is valid and belongs to a existing user", (done) => {
     const salt = crypto.randomBytes(16).toString("hex");
     const users = [
       {
@@ -97,20 +95,14 @@ describe("checkJwt middleware", () => {
     });
 
     const token = jwt.sign(users[0], JWT_SECRET);
-    const req = mockRequest({
-      body: { },
-      headers: { Authorization: `Bearer ${token}` },
-      get(name) {
-        if (name === "Authorization") return this.headers.Authorization;
-        return null;
-      }
-    });
-    checkJwt(req, res, (error) => {
-      expect(error).to.be.an.instanceof(AuthenticationError);
-    }).then((...things) => {
-      console.log("thing", things);
 
-      done();
-    });
+    request(app)
+      .get("/api/users")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200)
+      .then(() => {
+        done();
+      })
+      .catch(done);
   });
 });

@@ -378,13 +378,20 @@ describe("User endpoints", () => {
     });
 
     it("should return an error if unvalid token is provided", (done) => {
+      const expectedError = {
+        error: {
+          code: "INVALID_AUTHORIZATION_CODE",
+          message: "Invalid authorization code"
+        }
+      };
+
       request(app)
         .post("/api/users")
         .set("Authorization", "Bearer not a token")
         .send({ username: "hello", password: "newuser" })
         .expect(401)
         .then((res) => {
-          expect(res.text).to.eql("Unauthorized");
+          expect(res.body).to.eql(expectedError);
           done();
         })
         .catch(done);
@@ -491,13 +498,20 @@ describe("User endpoints", () => {
 
     // should throw an error if unvalid token is provided
     it("should return an error if unvalid token is provided", (done) => {
+      const expectedError = {
+        error: {
+          code: "INVALID_AUTHORIZATION_CODE",
+          message: "Invalid authorization code"
+        }
+      };
+
       request(app)
         .put(`/api/users/${userToUpdateId}`)
         .set("Authorization", "Bearer not a token")
         .send({ firstName: "Updated!", lastName: "Well done!" })
         .expect(401)
         .then((res) => {
-          expect(res.text).to.eql("Unauthorized");
+          expect(res.body).to.eql(expectedError);
           done();
         })
         .catch(done);
@@ -593,12 +607,19 @@ describe("User endpoints", () => {
     });
 
     it("should return an error if unvalid token is provided", (done) => {
+      const expectedError = {
+        error: {
+          code: "INVALID_AUTHORIZATION_CODE",
+          message: "Invalid authorization code"
+        }
+      };
+
       request(app)
         .delete(`/api/users/${userToDeleteId}`)
         .set("Authorization", "Bearer not a token")
         .expect(401)
         .then((res) => {
-          expect(res.text).to.eql("Unauthorized");
+          expect(res.body).to.eql(expectedError);
           done();
         })
         .catch(done);
