@@ -17,9 +17,9 @@ class UserRoutes {
       .route("/api/users/signup")
       .post(userController.signup);
 
-    router
-      .route("/api/users/confirmEmail")
-      .post(userController.confirmEmail);
+    // router
+    //   .route("/api/users/confirmEmail")
+    //   .post(userController.confirmEmail);
 
     router
       .route("/api/users/:id")

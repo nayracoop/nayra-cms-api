@@ -32,15 +32,15 @@ class UserDao extends BaseDao {
     };
 
     /**
-     * Email confirmation
+     * Email confirmation : not in use for now
      */
-    this.theSchema.statics.confirmEmail = async function confirmEmail(_id) {
-      const update = { emailConfirmed: true };
-      const userUpdated = await this.model(theModelName).findByIdAndUpdate(
-        _id, update, { new: true },
-      );
-      return userUpdated;
-    };
+    // this.theSchema.statics.confirmEmail = async function confirmEmail(_id) {
+    //   const update = { emailConfirmed: true };
+    //   const userUpdated = await this.model(theModelName).findByIdAndUpdate(
+    //     _id, update, { new: true },
+    //   );
+    //   return userUpdated;
+    // };
 
     this.theSchema.methods.setPassword = function setPassword(password) {
       this.salt = crypto.randomBytes(16).toString("hex");

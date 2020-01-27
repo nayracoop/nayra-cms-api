@@ -26,7 +26,7 @@ class UserController extends BaseController {
 
     this.createNew = this.createNew.bind(this);
     this.login = this.login.bind(this);
-    this.confirmEmail = this.confirmEmail.bind(this);
+    // this.confirmEmail = this.confirmEmail.bind(this);
     this.signup = this.signup.bind(this);
   }
 
@@ -85,27 +85,29 @@ class UserController extends BaseController {
     })(req, res, next);
   }
 
-  async confirmEmail(req, res, next) {
-    try {
-      const { id, email } = req.params;
+  /**
+   * To be defined the use case - not in use for now
+   */
+  // async confirmEmail(req, res, next) {
+  //   try {
+  //     const { id, email } = req.body;
+  //     assert(ObjectId.isValid(id), "Id is not a valid ObjectId.");
 
-      assert(ObjectId.isValid(id), "Id is not a valid ObjectId.");
-
-      const user = await this.user.getById(id);
-
-      if (!user) {
-        throw new AuthenticationError(3, 401, "Not authenticated.");
-      }
-      if (user.email !== email) {
-        throw new AuthenticationError(4, 401, "Invalid email to confirm");
-      }
-      await this.user.confirmEmail(id);
-      res.status(204).end();
-    } catch (error) {
-      const throwable = normalizeAndLogError("User", res, error);
-      next(throwable);
-    }
-  }
+  //     const user = await this.user.getById(id);
+      
+  //     if (!user) {
+  //       throw new AuthenticationError(3, 401, "Not authenticated.");
+  //     }
+  //     if (user.email !== email) {
+  //       throw new AuthenticationError(4, 401, "Invalid email to confirm");
+  //     }
+  //     await this.user.confirmEmail(id);
+  //     res.status(204).end();
+  //   } catch (error) {
+  //     const throwable = normalizeAndLogError("User", res, error);
+  //     next(throwable);
+  //   }
+  // }
 
   async signup(req, res, next) {
     const createUser = async (err, buffer) => {

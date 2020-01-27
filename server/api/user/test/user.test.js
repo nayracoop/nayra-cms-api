@@ -835,6 +835,5 @@ describe("User endpoints", () => {
   });
 
   context("POST api/users/confirmEmail", () => {
-
   });
 });
