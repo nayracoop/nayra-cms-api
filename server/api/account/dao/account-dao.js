@@ -1,4 +1,4 @@
-const { BaseDao } = require('../../_base/dao/base-dao');
+const { BaseDao } = require("../../_base/dao/base-dao");
 
 class AccountDao extends BaseDao {
   constructor(theSchema, theModelName) {
@@ -9,10 +9,10 @@ class AccountDao extends BaseDao {
       limit,
       select,
       sort,
-      query,
+      query
     }) {
       const things = await this.model(theModelName).find({
-        ...query,
+        ...query
       }).skip(skip)
         .limit(limit)
         .select(select)
@@ -36,5 +36,5 @@ class AccountDao extends BaseDao {
 }
 
 module.exports = {
-  AccountDao,
+  AccountDao
 };
