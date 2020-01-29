@@ -1,0 +1,29 @@
+/*
+  examples
+    modelName : "Currency"
+    modelNameLower : "currency"
+    modelNamePlural : "Currencies"
+    modelNamePluralLower : "currencies"
+*/
+const { checkJwt, shapeQuery } = require("../../../middleware");
+const { <%-modelName%>Schema } = require("../model/<%-modelNameLower%>-model");
+const { <%-modelName%>Controller } = require("../controller/<%-modelNameLower%>-controller");
+
+class <%-modelName%>Routes {
+  static init(router) {
+    const <%-modelNameLower%>Controller = new <%-modelName%>Controller();
+
+    router
+      .route("/api/<%-modelNamePluralLower%>")
+      .post([checkJwt, <%-modelNameLower%>Controller.createNew])
+      .get([checkJwt, shapeQuery(<%-modelName%>Schema), <%-modelNameLower%>Controller.getAll]);
+
+    router
+      .route("/api/<%-modelNamePluralLower%>/:id")
+      .get([checkJwt, <%-modelNameLower%>Controller.getById])
+      .patch([checkJwt, <%-modelNameLower%>Controller.updateById])
+      .delete([checkJwt, <%-modelNameLower%>Controller.removeById]);
+  }
+}
+
+module.exports = { <%-modelName%>Routes };
