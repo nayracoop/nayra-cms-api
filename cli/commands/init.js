@@ -25,6 +25,11 @@ module.exports = {
         }
       },
       {
+        name: "email",
+        type: "input",
+        message: "Enter email"
+      },
+      {
         name: "password",
         type: "password",
         message: "Enter password",

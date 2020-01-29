@@ -12,7 +12,6 @@
     "dev": "nodemon index.js",
     "cms-init": "node cli/index.js init",
     "migrations": "cd tasks && jake migrate",
-    "nayra-cli:migration:add": "cd cli && node migration",
     "nayra-cli:add-resource": "cd cli && node add-resource",
     "test": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha --recursive $npm_package_config_testFiles --exit"
   },
@@ -29,6 +28,7 @@
     "cors": "^2.8.1",
     "crypto": "^1.0.1",
     "dotenv": "^7.0.0",
+    "ejs": "^3.0.1",
     "express": "^4.16.4",
     "express-content-length-validator": "^1.0.0",
     "express-request-id": "^1.4.1",
