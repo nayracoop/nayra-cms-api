@@ -1,7 +1,7 @@
 const fs = require("fs");
 const ejs = require("ejs");
 const path = require("path");
-const log = require("./lib/logger");
+const log = require("./utils/logger");
 
 require("dotenv").config({ path: "../.env" });
 
@@ -28,7 +28,7 @@ function basicMigration() {
 }
 
 
-function superAdminMigration({ username, email, password }) {
+function createSuperAdminMigration({ username, email, password }) {
   const templateFileName = path.join(__dirname, "templates", "migration.template.js.ejs");
   const workingDirectory = process.cwd();
   const destinationFileName = path.join(workingDirectory, `tasks/migrations/${timestamp}_create_super_admin_user.js`);
@@ -50,5 +50,5 @@ function superAdminMigration({ username, email, password }) {
 
 module.exports = ({
   basicMigration,
-  superAdminMigration
+  createSuperAdminMigration
 });

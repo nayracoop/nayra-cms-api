@@ -1,4 +1,4 @@
-const log = require("../lib/logger");
+const log = require("../utils/logger");
 
 const addUser = () => {
   // check if exist a super user first
