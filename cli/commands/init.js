@@ -1,7 +1,7 @@
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 const boxen = require("boxen");
-const { createSuperAdminMigration } = require("../migration");
+const { createSuperAdminMigration } = require("../utils/migration");
 const log = require("../utils/logger");
 
 
