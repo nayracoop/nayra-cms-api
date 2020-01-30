@@ -1,9 +1,9 @@
 const { expect, assert }  = require("chai");
 const sandbox = require("sinon").createSandbox();
-const { program } = require("../commands/commands");
 const fs = require("fs");
 const chance = require("chance").Chance();
-const ResourceHelper = require("../utils/resourceHelpers");
+const { program } = require("../commands/commands");
+const ResourceHelper = require("../commands/resourceHelpers");
 
 let consoleSpy = null;
 let stubDir = null;
@@ -31,8 +31,8 @@ describe("test CLI commands", () => {
     assert(consoleSpy.withArgs(errMsg).calledOnce, "wrong error message");
   });
 
-  it("should call the createFoldersAndFiles method", () => {
-    const spyCreateResource = sandbox.stub(ResourceHelper, "createFoldersAndFiles").returns(true);
+  it("should call the addNewResource method", () => {
+    const spyCreateResource = sandbox.stub(ResourceHelper, "addNewResource").returns(true);
     const argv = [
       process.argv[0],
       process.argv[1],
@@ -41,6 +41,6 @@ describe("test CLI commands", () => {
     ];
     program.parse(argv);
     
-    assert(spyCreateResource.calledOnce, "createFoldersAndFiles() not called or called more than once");
+    assert(spyCreateResource.calledOnce, "addNewResource() not called or called more than once");
   });
 });
