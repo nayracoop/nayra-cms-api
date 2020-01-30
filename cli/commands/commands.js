@@ -2,7 +2,7 @@ const commander = require("commander");
 const log = require("../utils/logger");
 const { cliHeader } = require("../utils/header");
 const { initializeCms } = require("./init");
-const ResourceHelper = require("../utils/resourceHelpers");
+const ResourceHelper = require("./resourceHelpers");
 
 const program = new commander.Command();
 
@@ -20,14 +20,10 @@ program
   });
 
 program
-  .command("add-resource [name]")
+  .command("add-resource")
   .description("creates a new API REST resource")
-  .action((name) => {
-    if (name) {
-      ResourceHelper.createFoldersAndFiles(name);
-    } else {
-      log.error("ERROR: `add-resource` command requires to be provided a resource name");
-    }
+  .action(() => {
+    ResourceHelper.addNewResource();
   });
 
 module.exports = {

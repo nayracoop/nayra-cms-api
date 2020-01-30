@@ -1,0 +1,14 @@
+const { BaseController } = require("../../_base/controller/base-controller");
+const { <%-modelName%>Dao } = require("../dao/<%-modelNameLower%>-dao");
+const { <%-modelName%>Schema } = require("../model/<%-modelNameLower%>-model");
+
+class <%-modelName%>Controller extends BaseController {
+  constructor() {
+    const <%-modelNameLower%> = new <%-modelName%>Dao(<%-modelName%>Schema, "<%-modelName%>").getModel();
+    super(<%-modelNameLower%>);
+  }
+}
+
+module.exports = {
+  <%-modelName%>Controller
+};

@@ -1,0 +1,30 @@
+/* eslint-disable no-param-reassign */
+const mongoose = require("mongoose");
+const { BaseSchema } = require("../../_base/model/base-model");
+
+const <%-modelName%>Schema = mongoose.Schema({
+  accountId: {
+    type: mongoose.Schema.Types.ObjectId, required: true, ref: "Account", immutable: true
+  },
+  name: {
+    type: String,
+    trim: true,
+    required: true,
+    index: true
+  },
+  ...BaseSchema
+}, {
+  collection: "<%-modelNameLower%>",
+  toJSON: {
+    transform(doc, ret) {
+      delete ret._id;
+    },
+    virtuals: true
+  }
+});
+
+<%-modelName%>Schema.virtual("url").get(function url() { return `/<%-modelNamePluralLower%>/${this._id}`; });
+
+module.exports = {
+  <%-modelName%>Schema
+};
