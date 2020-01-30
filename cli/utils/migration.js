@@ -29,7 +29,7 @@ function basicMigration() {
 
 
 function createSuperAdminMigration({ username, email, password }) {
-  const templateFileName = path.join(__dirname, "templates", "migration.template.js.ejs");
+  const templateFileName = path.join(__dirname, "..", "templates", "migration.template.js.ejs");
   const workingDirectory = process.cwd();
   const destinationFileName = path.join(workingDirectory, `tasks/migrations/${timestamp}_create_super_admin_user.js`);
 
