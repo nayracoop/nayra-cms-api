@@ -8,10 +8,10 @@ const cors = require("cors");
 
 const MAX_CONTENT_LENGTH_ACCEPTED = 9999;
 
-const { AppVersionRoutes } = require("../api/app-version/routes/app-version-routes");
-const { CurrencyRoutes } = require("../api/currency/routes/currency-routes");
 const { AccountRoutes } = require("../api/account/routes/account-routes");
 const { UserRoutes } = require("../api/user/routes/user-routes");
+
+// route definition
 
 const { handleError } = require("../errors");
 
@@ -30,10 +30,10 @@ class RoutesConfig {
     }));
     app.use(helmet());
 
-    AppVersionRoutes.init(router);
     AccountRoutes.init(router);
-    CurrencyRoutes.init(router);
     UserRoutes.init(router);
+
+    // routes initializers
 
     app.use("/", router);
     app.use(handleError);
