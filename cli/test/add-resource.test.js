@@ -1,7 +1,7 @@
 const { expect, assert}  = require("chai");
 const sandbox = require("sinon").createSandbox();
-const { createFoldersAndFiles } = require("../lib/resourceHelpers");
-const files = require("../lib/files");
+const { createFoldersAndFiles } = require("../utils/resourceHelpers");
+const files = require("../utils/files");
 const fs = require("fs");
 const chance = require("chance").Chance();
 

@@ -3,7 +3,7 @@ const sandbox = require("sinon").createSandbox();
 const { program } = require("../commands/commands");
 const fs = require("fs");
 const chance = require("chance").Chance();
-const ResourceHelper = require("../lib/resourceHelpers");
+const ResourceHelper = require("../utils/resourceHelpers");
 
 let consoleSpy = null;
 let stubDir = null;
