@@ -1,6 +1,6 @@
 const { expect, assert}  = require("chai");
 const sandbox = require("sinon").createSandbox();
-const { createFoldersAndFiles } = require("../commands/resourceHelpers");
+const { createFoldersAndFiles, registerNewRoutes } = require("../commands/resourceHelpers");
 const files = require("../utils/files");
 const fs = require("fs");
 const chance = require("chance").Chance();
@@ -39,5 +39,10 @@ describe("add-resource", () => {
 
     assert(spyConsole.withArgs(`Creating api resources for: ${name}`).calledOnce);
     assert(spyConsole.withArgs(`created new folder ../server/api/${name}`).calledOnce);
+  });
+
+  // TO DO
+  it.skip("register new route", () => {
+    registerNewRoutes("media");
   });
 });

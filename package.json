@@ -12,7 +12,7 @@
     "dev": "nodemon index.js",
     "cms-init": "node cli/index.js init",
     "migrations": "cd tasks && jake migrate",
-    "nayra-cli:add-resource": "cd cli && node add-resource",
+    "nayra-cli:add-resource": "cd cli && node index add-resource",
     "test": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha --recursive $npm_package_config_testFiles --exit"
   },
   "dependencies": {

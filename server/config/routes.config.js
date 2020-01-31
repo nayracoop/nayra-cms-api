@@ -11,7 +11,7 @@ const MAX_CONTENT_LENGTH_ACCEPTED = 9999;
 const { AccountRoutes } = require("../api/account/routes/account-routes");
 const { UserRoutes } = require("../api/user/routes/user-routes");
 
-// route definition
+// route definition - do not deletete this line
 
 const { handleError } = require("../errors");
 
@@ -33,7 +33,7 @@ class RoutesConfig {
     AccountRoutes.init(router);
     UserRoutes.init(router);
 
-    // routes initializers
+    // routes initializers  - do not deletete this line
 
     app.use("/", router);
     app.use(handleError);

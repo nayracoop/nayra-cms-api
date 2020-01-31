@@ -13,7 +13,13 @@ const log = require("../utils/logger");
 const { createDir, createFile } = require("../utils/files");
 
 const apiPath = "../server/api";
+const routesConfig = "../../server/config/routes.config.js";
 
+
+const capitalize = (s) => {
+  if (typeof s !== "string") return "";
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
 
 function askResourceQuestions() {
   const questions = [
@@ -58,6 +64,46 @@ function createFoldersAndFiles(name) {
   });
 }
 
+/**
+ * read route file for register new routes
+ */
+
+const registerNewRoutes = (resourceSingular) => {
+  // these markers are used to find the required line numbers for route registering
+  const routeFileMarker = /route definition/;
+  const routeInitMarker = /routes initializers/;
+
+  let fileLineNumber = null;
+  let initLineNumber = null;
+
+  const data = fs.readFileSync(`${__dirname}/${routesConfig}`).toString().split("\n");
+
+  // search for marker strings and get line numbers. maybe not the best way
+  data.forEach((line, index) => {
+    if (line.match(routeFileMarker)) {
+      fileLineNumber = index;
+      // console.log(`${index} - ${line}`);
+    }
+
+    if (line.match(routeInitMarker)) {
+      initLineNumber = index;
+      // console.log(`${index} - ${line}`);
+    }
+  });
+
+  if (fileLineNumber && initLineNumber) {
+    data.splice(fileLineNumber, 0, `const { ${capitalize(resourceSingular)}Routes } = require("../api/${resourceSingular}/routes/${resourceSingular}-routes");\n`);
+    data.splice(initLineNumber, 0, `    ${capitalize(resourceSingular)}Routes.init(router);`);
+  }
+
+  console.log(data);
+  const text = data.join("\n");
+
+  fs.writeFile(`${__dirname}/${routesConfig}`, text, (err) => {
+    if (err) return console.log(err);
+  });
+};
+
 const addNewResource = async () => {
   let { modelName, modelNamePlural } = await askResourceQuestions();
   const modelNameLower = modelName.toLowerCase();
@@ -94,11 +140,14 @@ const addNewResource = async () => {
       createFile(destinationFilePath, fileContents);
     }
   });
+
+  registerNewRoutes(modelNameLower);
+
   log.info(boxen(`Resource ${chalk.keyword("orange")(modelName)} has been created succesfully!`, { padding: 1 }));
 };
 
-
 module.exports = {
   addNewResource,
-  createFoldersAndFiles
+  createFoldersAndFiles,
+  registerNewRoutes
 };
