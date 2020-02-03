@@ -14,7 +14,7 @@ const <%-modelName%>Schema = mongoose.Schema({
   },
   ...BaseSchema
 }, {
-  collection: "<%-modelNameLower%>",
+  collection: "<%-modelNamePluralLower%>",
   toJSON: {
     transform(doc, ret) {
       delete ret._id;
@@ -23,7 +23,7 @@ const <%-modelName%>Schema = mongoose.Schema({
   }
 });
 
-<%-modelName%>Schema.virtual("url").get(function url() { return `/<%-modelNamePluralLower%>/${this._id}`; });
+<%-modelName%>Schema.virtual("url").get(function url() { return `/api/<%-modelNamePluralLower%>/${this._id}`; });
 
 module.exports = {
   <%-modelName%>Schema
