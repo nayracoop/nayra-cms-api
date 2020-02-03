@@ -12,7 +12,7 @@
     "dev": "nodemon index.js",
     "cms-init": "node cli/index.js init",
     "migrations": "cd tasks && jake migrate",
-    "nayra-cli:add-resource": "cd cli && node index add-resource",
+    "cms-add-resource": "cd cli && node ./index.js add-resource",
     "test": "NODE_ENV=test nyc --reporter=html --reporter=text-summary ./node_modules/mocha/bin/mocha --recursive $npm_package_config_testFiles --exit"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "bunyan": "^1.8.12",
     "bunyan-express-serializer": "^1.0.0",
     "bunyan-format": "^0.2.1",
+    "chance": "^1.1.4",
     "chalk": "^3.0.0",
     "clear": "^0.1.0",
     "commander": "^4.0.1",
@@ -54,7 +55,6 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "chance": "^1.1.4",
     "coveralls": "^3.0.6",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
