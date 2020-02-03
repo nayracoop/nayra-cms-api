@@ -1,0 +1,578 @@
+const { expect, assert } = require("chai");
+const request = require("supertest");
+const fixtures = require("node-mongoose-fixtures");
+const crypto = require("crypto");
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const _ = require("lodash");
+const Chance = require("chance");
+
+const chance = new Chance;
+
+
+require("dotenv").config();
+
+const { JWT_SECRET } = process.env;
+const app = require("../../../server");
+const { <%-modelName%>Schema } = require("../model/<%-modelNameLower%>-model");
+
+
+let <%-modelName%>Model = null;
+let token = null;
+const password = "123456";
+const salt = crypto.randomBytes(16).toString("hex");
+const testAccountId = mongoose.Types.ObjectId();
+const adminId = mongoose.Types.ObjectId();
+
+const <%-modelNameLower%>Id = mongoose.Types.ObjectId();
+const <%-modelNameLower%>ToUpdateId = mongoose.Types.ObjectId();
+const <%-modelNameLower%>ToDeleteId = mongoose.Types.ObjectId();
+const <%-modelNameLower%>FromAnotherAccountId = mongoose.Types.ObjectId();
+
+const requiredKeys = [];
+const uniqueKeys = [];
+const queryParamKeys = [];
+const notQueryParamKeys = [];
+const booleanParamKeys = [];
+const stringParamKeys = [];
+const arrayParamKeys = [];
+
+let <%-modelNamePluralLower%> = null;
+
+const makeNewDocumentWithBoolsAndStrings = (overrides) => {
+  const newDoc = { accountId: testAccountId };
+  stringParamKeys.forEach((key) => {
+    newDoc[key] = chance.word();
+  });
+  booleanParamKeys.forEach((key) => {
+    newDoc[key] = true;
+  });
+  return Object.assign(newDoc, overrides);
+};
+
+const users = [
+  {
+    _id: adminId,
+    accountId: testAccountId,
+    username: "username1",
+    email: "username1@nayra.coop",
+    emailConfirmed: true,
+    hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+    salt
+  }
+];
+
+describe("<%-modelName%> endpoints", () => {
+  before(() => {
+    // next line is here to avoid schema registerign error, MUST be fixed
+    <%-modelName%>Model = mongoose.model("<%-modelName%>", <%-modelName%>Schema);
+    fixtures.reset();
+
+    const schemaValues = _.omit(<%-modelName%>Schema.tree, ["createdBy", "createdAt", "deletedAt", "deletedBy", "deleted", "updated", "url", "uri", "__v", "id"]);
+    const keys = Object.keys(schemaValues);
+
+    keys.forEach((key) => {
+      if (schemaValues[key].required) requiredKeys.push(key);
+      if (!schemaValues[key].notForQuery) queryParamKeys.push(key);
+      if (schemaValues[key].notForQuery) notQueryParamKeys.push(key);
+      if (schemaValues[key].index && schemaValues[key].index.unique) uniqueKeys.push(key);
+      if (schemaValues[key].type === String) stringParamKeys.push(key);
+      if (schemaValues[key].type === Boolean) booleanParamKeys.push(key);
+      if (Array.isArray(schemaValues[key])) arrayParamKeys.push(key);
+    });
+
+    <%-modelNamePluralLower%> = [
+      makeNewDocumentWithBoolsAndStrings({
+        _id: <%-modelNameLower%>Id,
+        id: <%-modelNameLower%>Id,
+        accountId: testAccountId
+      }),
+      makeNewDocumentWithBoolsAndStrings({
+        _id: <%-modelNameLower%>ToUpdateId,
+        id: <%-modelNameLower%>ToUpdateId,
+        accountId: testAccountId
+      }),
+      makeNewDocumentWithBoolsAndStrings({
+        _id: <%-modelNameLower%>ToDeleteId,
+        id: <%-modelNameLower%>ToDeleteId,
+        accountId: testAccountId
+      }),
+      makeNewDocumentWithBoolsAndStrings({
+        _id: <%-modelNameLower%>FromAnotherAccountId,
+        id: <%-modelNameLower%>FromAnotherAccountId,
+        accountId: mongoose.Types.ObjectId()
+      })
+    ];
+  });
+
+  beforeEach((done) => {
+    token = jwt.sign(users[0], JWT_SECRET);
+
+    fixtures.save("users", {
+      User: users
+    });
+
+    fixtures("users", (err, _data) => {
+      if (err) {
+        console.error("Fixture error", err);
+      }
+    });
+
+    fixtures.save("<%-modelNamePluralLower%>", {
+      <%-modelName%>: <%-modelNamePluralLower%>
+    });
+
+    fixtures("<%-modelNamePluralLower%>", (err, _data) => {
+      if (err) {
+        console.error("Fixture error", err);
+      }
+      done();
+    });
+  });
+
+  afterEach(() => {
+    fixtures.reset();
+  });
+
+  // OK !
+  context("GET api/<%-modelNamePluralLower%>  (get all)", () => {
+    it("should return an object with all <%-modelNamePluralLower%> from same account", (done) => {
+      request(app)
+        .get("/api/<%-modelNamePluralLower%>")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).to.include.keys(["count", "list"]);
+          expect(res.body.count).to.be.eql(<%-modelNamePluralLower%>.filter(m => m.accountId === testAccountId).length);
+          // be careful someday pagination could change this
+          res.body.list.forEach((element) => {
+            expect(element.accountId).to.eql(testAccountId.toString());
+          });
+          done();
+        })
+        .catch(done);
+    });
+
+    queryParamKeys.forEach((key) => {
+      if (booleanParamKeys.indexOf(key) !== -1) {
+        it("should return accept a boolean query param", (done) => {
+          const query = {};
+          query[key] = "true";
+          request(app)
+            .get("/api/<%-modelNamePluralLower%>")
+            .set("Authorization", `Bearer ${token}`)
+            .query(query)
+            .expect(200)
+            .then((res) => {
+              expect(res.body).to.include.keys(["count", "list"]);
+              done();
+            })
+            .catch(done);
+        });
+      }
+      if (stringParamKeys.indexOf(key) !== -1) {
+        it("should return accept a string query param", (done) => {
+          const query = {};
+          query[key] = "word";
+          request(app)
+            .get("/api/<%-modelNamePluralLower%>")
+            .set("Authorization", `Bearer ${token}`)
+            .query(query)
+            .expect(200)
+            .then((res) => {
+              expect(res.body).to.include.keys(["count", "list"]);
+              done();
+            })
+            .catch(done);
+        });
+      }
+    });
+
+    if (notQueryParamKeys.length) {
+      it("should return a 422 error is query contains forbidden params", (done) => {
+        const query = {}
+        query[notQueryParamKeys[0]] = "this is not okay";
+
+        request(app)
+          .get("/api/<%-modelNamePluralLower%>")
+          .set("Authorization", `Bearer ${token}`)
+          .query(query)
+          .expect(422)
+          .then((res) => {
+            expect(res.body.name).to.eql("ValidationError");
+            expect(res.body.code).to.eql(1);
+            expect(res.body.message).to.eql(`Filter for field defined (${notQueryParamKeys[0]}) is not permitted`);
+            done();
+          })
+          .catch(done);
+      });
+    }
+
+    it("should return a 422 error is query contains unexisting params", (done) => {
+      request(app)
+        .get("/api/<%-modelNamePluralLower%>")
+        .set("Authorization", `Bearer ${token}`)
+        .query({ fakeField: "let me be a part of the query" })
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(1);
+          expect(res.body.message).to.eql("Filter for field defined (fakeField) does not match a valid model property");
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if unvalid token is provided", (done) => {
+      const expectedError = {
+        error: {
+          code: "INVALID_AUTHORIZATION_CODE",
+          message: "Invalid authorization code"
+        }
+      };
+
+      request(app)
+        .get("/api/<%-modelNamePluralLower%>")
+        .set("Authorization", "Bearer not a token")
+        .expect(401)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  // OK !
+  context("GET api/<%-modelNamePluralLower%>/:id  (get by Id)", () => {
+    it("should get <%-modelNameLower%> by id", (done) => {
+      request(app)
+        .get(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>Id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.id).to.eql(<%-modelNameLower%>Id.toString());
+          expect(res.body.accountId).to.eql(testAccountId.toString());
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should not get <%-modelNameLower%> from another account", (done) => {
+      const expectedError = {
+        name: "ValidationError",
+        code: 70,
+        message: "<%-modelNamePlural%> does not exist or does not belong to your account."
+      };
+
+      request(app)
+        .get(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>FromAnotherAccountId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should throw an error if the provided id doesn't belong to an existing record", (done) => {
+      const invalidId = mongoose.Types.ObjectId();
+      const expectedError = {
+        name: "ValidationError",
+        code: 70,
+        message: "<%-modelNamePlural%> does not exist or does not belong to your account."
+      };
+
+      request(app)
+        .get(`/api/<%-modelNamePluralLower%>/${invalidId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should throw an error if the provided id is not a valid id", (done) => {
+      const expectedError = {
+        name: "ValidationError",
+        code: 1,
+        message: "Id is not a valid ObjectId."
+      };
+
+      request(app)
+        .get("/api/<%-modelNamePluralLower%>/notAnId")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(422)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if unvalid token is provided", (done) => {
+      const expectedError = {
+        error: {
+          code: "INVALID_AUTHORIZATION_CODE",
+          message: "Invalid authorization code"
+        }
+      };
+
+      request(app)
+        .get(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>Id}`)
+        .set("Authorization", "Bearer not a token")
+        .expect(401)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  // OK ! needs some more testing and fixing done
+  context("POST api/<%-modelNamePluralLower%> (create new)", () => {
+    it("should create a <%-modelNameLower%>", (done) => {
+      const new<%-modelName%> = makeNewDocumentWithBoolsAndStrings();
+
+      request(app)
+        .post("/api/<%-modelNamePluralLower%>")
+        .set("Authorization", `Bearer ${token}`)
+        .send(new<%-modelName%>)
+        .expect(201)
+        .then((res) => {
+          // test schema ? 
+          // for each key           
+          // expect(res.body["key"]).to.eql(newUser["key"]);
+
+          // expect(res.body).to.include.keys(["id", "accountId", "updated", "accountId", "url", "createdBy", "createdAt", "deleted", "__v"]);
+          done();
+        })
+        .catch(done);
+    });
+
+    if (requiredKeys.length) {
+      it("should return an error if required fields are missing from req body", (done) => {
+        const newModel = makeNewDocumentWithBoolsAndStrings()
+        newMode[requiredKeys[0]] = null;
+  
+        request(app)
+          .post("/api/<%-modelNamePluralLower%>")
+          .set("Authorization", `Bearer ${token}`)
+          .send(newModel)
+          .expect(422)
+          .then((res) => {
+            expect(res.body.name).to.eql("ValidationError");
+            expect(res.body.code).to.eql(80);
+            expect(res.body.message).to.eql(`User validation failed: ${requiredKeys[0]}: Path \"${requiredKeys[0]}\" is required.`);
+            done();
+          })
+          .catch(done);
+      });
+    }
+   
+    if (booleanParamKeys.length) {
+      booleanParamKeys.forEach((key) => {
+        it(`should return an error if ${key} is not a boolean`, (done) => {
+          const newDoc = makeNewDocumentWithBoolsAndStrings(); 
+          newDoc[key] = "not a boolean";
+          request(app)
+            .post("/api/<%-modelNamePluralLower%>")
+            .set("Authorization", `Bearer ${token}`)
+            .send(newDoc)
+            .expect(422)
+            .then((res) => {
+              expect(res.body.name).to.eql("ValidationError");
+              expect(res.body.code).to.eql(80);
+              expect(res.body.message).to.eql(`User validation failed: ${key}: Cast to Boolean failed for value \"not a boolean\" at path \"${key}\"`);
+              done();
+            })
+            .catch(done);
+        });
+      });
+    }
+
+    if (stringParamKeys.length) {
+      stringParamKeys.forEach((key) => {
+        it(`should return an error if ${key} is not a string`, (done) => {
+          const newDoc = makeNewDocumentWithBoolsAndStrings(); 
+          newDoc[key] = [];
+          request(app)
+            .post("/api/<%-modelNamePluralLower%>")
+            .set("Authorization", `Bearer ${token}`)
+            .send(newDoc)
+            .expect(422)
+            .then((res) => {
+              expect(res.body.name).to.eql("ValidationError");
+              expect(res.body.code).to.eql(80);
+              expect(res.body.message).to.eql(`User validation failed: ${key}: Cast to String failed for value \"[]\" at path \"${key}\"`);
+              done();
+            })
+            .catch(done);
+        });
+      });
+    }
+
+    // TODO: fix this, now not creating any error, creating base component instead
+    it.skip("should return an error if req.body is not an object", (done) => {
+      request(app)
+        .post("/api/<%-modelNamePluralLower%>")
+        .set("Authorization", `Bearer ${token}`)
+        .send("bananas")
+        //.expect(422)
+        .then((res) => {
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if unvalid token is provided", (done) => {
+      const expectedError = {
+        error: {
+          code: "INVALID_AUTHORIZATION_CODE",
+          message: "Invalid authorization code"
+        }
+      };
+
+      request(app)
+        .post("/api/<%-modelNamePluralLower%>")
+        .set("Authorization", "Bearer not a token")
+        .send(makeNewDocumentWithBoolsAndStrings())
+        .expect(401)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  context("PUT api/<%-modelNamePluralLower%>/:id  (update by Id)", () => {
+    it("should update and add updated at field", (done) => {
+      const newDoc = makeNewDocumentWithBoolsAndStrings();
+      request(app)
+        .put(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>ToUpdateId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(newDoc)
+        .expect(200)
+        .then(() => <%-modelName%>Model.findOne({ _id: <%-modelNameLower%>ToUpdateId }))
+        .then((doc) => {
+          // compare doc with newDoc
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should not add invalid fields", (done) => {
+      request(app)
+        .put(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>ToUpdateId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ coolField: "i want to be in the record too!" })
+        .expect(200)
+        .then(() => <%-modelName%>Model.findOne({ _id: <%-modelNameLower%>ToUpdateId }))
+        .then((doc) => {
+          expect(doc.coolField).to.eql(undefined);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should not be able to update a <%-modelNameLower%> record from another account", (done) => {
+      request(app)
+        .put(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>FromAnotherAccountId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(makeNewDocumentWithBoolsAndStrings())
+        .expect(404)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(70);
+          expect(res.body.message).to.eql("<%-modelNamePlural%> not found.");
+
+          return <%-modelName%>Model.findOne({ _id: <%-modelNameLower%>FromAnotherAccountId });
+        })
+        .then((doc) => {
+          expect(doc.deleted).to.eql(false);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if unvalid token is provided", (done) => {
+      const expectedError = {
+        error: {
+          code: "INVALID_AUTHORIZATION_CODE",
+          message: "Invalid authorization code"
+        }
+      };
+
+      request(app)
+        .put(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>ToUpdateId}`)
+        .set("Authorization", "Bearer not a token")
+        .send(makeNewDocumentWithBoolsAndStrings())
+        .expect(401)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  // OK ! needs fixing: Model.findOne not working
+  context("DELETED api/<%-modelNamePluralLower%>/:id  (remove by Id)", () => {
+    it("should delete a <%-modelNameLower%> record", (done) => {
+      request(app)
+        .delete(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>ToDeleteId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204)
+        .then(() => <%-modelName%>Model.findOne({ id: <%-modelNameLower%>ToDeleteId.toString()}))
+        .then((doc) => {
+          expect(doc).to.eql(null);
+          done();
+        })
+        .catch(done);
+    });
+
+    // TODO: check why Model does not work
+    it.skip("should not be able to delete a <%-modelNameLower%> record from another account", (done) => {
+      request(app)
+        .delete(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>FromAnotherAccountId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(70);
+          expect(res.body.message).to.eql("<%-modelNamePlural%> not found.");
+
+          return <%-modelName%>Model.findOne({ _id: <%-modelNameLower%>FromAnotherAccountId });
+        })
+        .then((doc) => {
+          expect(doc.deleted).to.eql(false);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if unvalid token is provided", (done) => {
+      const expectedError = {
+        error: {
+          code: "INVALID_AUTHORIZATION_CODE",
+          message: "Invalid authorization code"
+        }
+      };
+
+      request(app)
+        .delete(`/api/<%-modelNamePluralLower%>/${<%-modelNameLower%>ToDeleteId}`)
+        .set("Authorization", "Bearer not a token")
+        .expect(401)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+  });
+});

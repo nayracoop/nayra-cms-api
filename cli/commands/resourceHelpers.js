@@ -115,7 +115,13 @@ const addNewResource = async () => {
     if (index > 0) {
       const folderName = file.substring(0, index);
       const destinationFolderPath = path.join(workingDirectory, "..", "server", "api", modelNameLower, folderName);
-      const destinationFilePath = path.join(workingDirectory, "..", "server", "api", modelNameLower, folderName, `${modelNameLower}-${folderName}.js`);
+      let destinationFilePath = null;
+
+      if (folderName === "test") {
+        destinationFilePath = path.join(workingDirectory, "..", "server", "api", modelNameLower, folderName, `${modelNameLower}.${folderName}.js`);
+      } else {
+        destinationFilePath = path.join(workingDirectory, "..", "server", "api", modelNameLower, folderName, `${modelNameLower}-${folderName}.js`);
+      }
 
       createDir(destinationFolderPath);
       createFile(destinationFilePath, fileContents);

@@ -21,7 +21,7 @@ class <%-modelName%>Routes {
     router
       .route("/api/<%-modelNamePluralLower%>/:id")
       .get([checkJwt, <%-modelNameLower%>Controller.getById])
-      .patch([checkJwt, <%-modelNameLower%>Controller.updateById])
+      .put([checkJwt, <%-modelNameLower%>Controller.updateById])
       .delete([checkJwt, <%-modelNameLower%>Controller.removeById]);
   }
 }
