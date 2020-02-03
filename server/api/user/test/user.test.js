@@ -11,6 +11,7 @@ const password = "123456";
 const salt = crypto.randomBytes(16).toString("hex");
 const testAccountId = mongoose.Types.ObjectId();
 const adminId = mongoose.Types.ObjectId();
+const userFromOtherAccountId = mongoose.Types.ObjectId();
 
 
 require("dotenv").config();
@@ -38,6 +39,7 @@ const users = [
     salt
   },
   {
+    _id: userFromOtherAccountId,
     accountId: mongoose.Types.ObjectId(),
     username: "userFromOtherAccount",
     email: "mariana@notnayra.coop",
@@ -218,7 +220,7 @@ describe("User endpoints", () => {
     });
 
     // TO-DO define the propper error codes and mesagges for documentation and ussage
-    it("should return a 422 error is query contain forbidden params", (done) => {
+    it("should return a 422 error if query contain forbidden params", (done) => {
       request(app)
         .get("/api/users")
         .set("Authorization", `Bearer ${token}`)
@@ -399,10 +401,92 @@ describe("User endpoints", () => {
   });
 
   context("GET api/users/:id  (get by Id)", () => {
-    // should get user by id
-    // should get user from another account
-    // should throw an error if the provided id doesn't belong to an existing record
-    // should throw an error if unvalid token is provided
+    it("should get user by id", (done) => {
+      request(app)
+        .get(`/api/users/${adminId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.id).to.eql(adminId.toString());
+          expect(res.body.accountId).to.eql(testAccountId.toString());
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should not get user from another account", (done) => {
+      const expectedError = {
+        name: "ValidationError",
+        code: 70,
+        message: "Users does not exist or does not belong to your account."
+      };
+
+      request(app)
+        .get(`/api/users/${userFromOtherAccountId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should throw an error if the provided id doesn't belong to an existing record", (done) => {
+      const invalidId = mongoose.Types.ObjectId();
+      const expectedError = {
+        name: "ValidationError",
+        code: 70,
+        message: "Users does not exist or does not belong to your account."
+      };
+
+      request(app)
+        .get(`/api/users/${invalidId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should throw an error if the provided id is not a valid id", (done) => {
+      const expectedError = {
+        name: "ValidationError",
+        code: 1,
+        message: "Id is not a valid ObjectId."
+      };
+
+      request(app)
+        .get("/api/users/notAnId")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(422)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if unvalid token is provided", (done) => {
+      const expectedError = {
+        error: {
+          code: "INVALID_AUTHORIZATION_CODE",
+          message: "Invalid authorization code"
+        }
+      };
+
+      request(app)
+        .get(`/api/users/${adminId}`)
+        .set("Authorization", "Bearer not a token")
+        .expect(401)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
   });
 
   context("PUT api/users/:id  (update by Id)", () => {
