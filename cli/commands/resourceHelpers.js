@@ -45,25 +45,6 @@ function askResourceQuestions() {
   return inquirer.prompt(questions);
 }
 
-function createFoldersAndFiles(name) {
-  const resourceFolders = [
-    "controller", "dao", "model", "routes", "tests"
-  ];
-
-  const baseDir = `${apiPath}/${name}`;
-
-  log.info(`Creating api resources for: ${name}`);
-
-  createDir(`${baseDir}`);
-  log.info(`created new folder ${baseDir}`);
-
-  resourceFolders.forEach((f) => {
-    const resourceSubDir = `${baseDir}/${f}`;
-    createDir(resourceSubDir);
-    createFile(`${resourceSubDir}/${name}-${f}.js`);
-  });
-}
-
 /**
  * read route file for register new routes
  */
@@ -133,8 +114,8 @@ const addNewResource = async () => {
     const index = file.indexOf(".");
     if (index > 0) {
       const folderName = file.substring(0, index);
-      const destinationFolderPath = path.join(workingDirectory, "..", "server","api", modelNameLower, folderName);
-      const destinationFilePath = path.join(workingDirectory, "..", "server","api", modelNameLower, folderName, `${modelNameLower}-${folderName}.js`);
+      const destinationFolderPath = path.join(workingDirectory, "..", "server", "api", modelNameLower, folderName);
+      const destinationFilePath = path.join(workingDirectory, "..", "server", "api", modelNameLower, folderName, `${modelNameLower}-${folderName}.js`);
 
       createDir(destinationFolderPath);
       createFile(destinationFilePath, fileContents);
@@ -148,6 +129,5 @@ const addNewResource = async () => {
 
 module.exports = {
   addNewResource,
-  createFoldersAndFiles,
   registerNewRoutes
 };

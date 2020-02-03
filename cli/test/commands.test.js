@@ -10,7 +10,7 @@ let stubDir = null;
 let stubFiles = null;
 
 describe("test CLI commands", () => {
-  beforeEach(() =>{
+  beforeEach(() => {
     stubFiles = sandbox.stub(fs, "writeFileSync").returns(true);
     stubDir = sandbox.stub(fs, "mkdirSync").returns(true);
     consoleSpy = sandbox.spy(console, "error");
@@ -18,17 +18,6 @@ describe("test CLI commands", () => {
 
   afterEach(() => {
     sandbox.restore();
-  });
-
-  it.skip("should display an error message if the resouce name is not given", () => {
-    const argv = [
-      process.argv[0],
-      process.argv[1],
-      "add-resource"
-    ];
-    program.parse(argv);
-    const errMsg = "ERROR: `add-resource` command requires to be provided a resource name";
-    assert(consoleSpy.withArgs(errMsg).calledOnce, "wrong error message");
   });
 
   it("should call the addNewResource method", () => {
