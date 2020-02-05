@@ -5,12 +5,12 @@ const { BaseSchema } = require("../../_base/model/base-model");
 const <%-modelName%>Schema = mongoose.Schema({
   accountId: {
     type: mongoose.Schema.Types.ObjectId, required: true, ref: "Account", immutable: true
-  },
-  name: {
-    type: String,
-    trim: true,
-    index: true
-  },
+  },<%  if (fieldList && fieldList.length) {
+    fieldList.forEach((field) => {%>
+  <%= field.fieldName %>: {
+    type: <%= field.fieldType %><% if (field.fieldProps && field.fieldProps.length){%>,
+  <%field.fieldProps.forEach((prop) => {%>  <%-prop %>: true<%if (field.fieldProps.indexOf(prop) !== (field.fieldProps.length - 1)) {%>,<%}%>
+  <%});}%>},<% })}%>
   ...BaseSchema
 }, {
   collection: "<%-modelNamePluralLower%>",

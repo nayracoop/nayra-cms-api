@@ -56,20 +56,13 @@ function askSchemaFields() {
       name: "fieldType",
       type: "list",
       message: `Select the ${chalk.keyword("green")("field type")} from the following list:`,
-      choices: ["String", "Number", "Date", "Buffer", "Boolean", "Mixed", "ObjectId", "Array", "Decimal128", "Map"]
+      choices: ["String", "Number", "Date", "Buffer", "Boolean", "Mixed", { value: "mongoose.Schema.Types.ObjectId", name: "ObjectId" }, "Array", "Decimal128", "Map"]
     },
     {
       name: "fieldProps",
       type: "checkbox",
       message: `Select with space bar if the field is ${chalk.keyword("green")("required")} and/or ${chalk.keyword("green")("unique")} or none:`,
-      choices: ["none", "required", "unique"],
-      validate: (value) => {
-        if (value.length > 0) {
-          return true;
-        }
-        return "You must select none or at least one option!";
-      },
-      default: "none"
+      choices: ["required", "unique"]
     },
     {
       name: "addNew",
@@ -122,8 +115,8 @@ const registerNewRoutes = (resourceSingular) => {
 };
 
 const addNewResource = async () => {
-  let { modelName, modelNamePlural} = await askResourceQuestions();
-  const fields = [];
+  let { modelName, modelNamePlural } = await askResourceQuestions();
+  const fieldList = [];
   let continueAskingFields = true;
 
   // ask for fields - not generating the schema template yet (WIP)
@@ -131,12 +124,10 @@ const addNewResource = async () => {
   log.info(`Insert the fields for ${chalk.keyword("yellow")(modelName)} schema`);
   while (continueAskingFields) {
     const { addNew, fieldName, fieldType, fieldProps } = await askSchemaFields();
-    fields.push({ fieldName, fieldType, fieldProps });
+    fieldList.push({ fieldName, fieldType, fieldProps });
     continueAskingFields = addNew;
     log.info(`${chalk.keyword("yellow")("-------------------------")}`);
   }
-
-  // console.log(fields);
 
   const modelNameLower = modelName.toLowerCase();
   const modelNamePluralLower = modelNamePlural.toLowerCase();
@@ -146,7 +137,8 @@ const addNewResource = async () => {
     modelName,
     modelNameLower,
     modelNamePlural,
-    modelNamePluralLower
+    modelNamePluralLower,
+    fieldList
   };
   const templatePath = path.join(__dirname, "..", "templates", "resources");
 
