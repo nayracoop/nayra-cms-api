@@ -93,7 +93,6 @@ const shapeQuery = model => async (req, res, next) => {
     };
     next();
   } catch (error) {
-    console.log("Error");
     const throwable = normalizeAndLogError("shapeQuery", req, error);
     next(throwable);
   }

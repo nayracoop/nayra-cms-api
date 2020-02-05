@@ -114,7 +114,6 @@ const registerNewRoutes = (resourceSingular) => {
     data.splice(initLineNumber, 0, `    ${capitalize(resourceSingular)}Routes.init(router);`);
   }
 
-  console.log(data);
   const text = data.join("\n");
 
   fs.writeFile(`${__dirname}/${routesConfig}`, text, (err) => {
