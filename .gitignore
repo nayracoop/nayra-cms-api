@@ -6,3 +6,4 @@ unit_coverage
 client/dev/bower_components
 .env
 .nyc_output
+testing
