@@ -45,6 +45,43 @@ function askResourceQuestions() {
   return inquirer.prompt(questions);
 }
 
+function askSchemaFields() {
+  const questions = [
+    {
+      name: "fieldName",
+      type: "input",
+      message: `Enter the ${chalk.keyword("green")("field name")} using camel case:`
+    },
+    {
+      name: "fieldType",
+      type: "list",
+      message: `Select the ${chalk.keyword("green")("field type")} from the following list:`,
+      choices: ["String", "Number", "Date", "Buffer", "Boolean", "Mixed", "ObjectId", "Array", "Decimal128", "Map"]
+    },
+    {
+      name: "fieldProps",
+      type: "checkbox",
+      message: `Select with space bar if the field is ${chalk.keyword("green")("required")} and/or ${chalk.keyword("green")("unique")} or none:`,
+      choices: ["none", "required", "unique"],
+      validate: (value) => {
+        if (value.length > 0) {
+          return true;
+        }
+        return "You must select none or at least one option!";
+      },
+      default: "none"
+    },
+    {
+      name: "addNew",
+      message: "Add a new field?",
+      type: "confirm",
+      default: true
+    }
+  ];
+
+  return inquirer.prompt(questions);
+}
+
 /**
  * read route file for register new routes
  */
@@ -86,7 +123,22 @@ const registerNewRoutes = (resourceSingular) => {
 };
 
 const addNewResource = async () => {
-  let { modelName, modelNamePlural } = await askResourceQuestions();
+  let { modelName, modelNamePlural} = await askResourceQuestions();
+  const fields = [];
+  let continueAskingFields = true;
+
+  // ask for fields - not generating the schema template yet (WIP)
+  log.info("\n");
+  log.info(`Insert the fields for ${chalk.keyword("yellow")(modelName)} schema`);
+  while (continueAskingFields) {
+    const { addNew, fieldName, fieldType, fieldProps } = await askSchemaFields();
+    fields.push({ fieldName, fieldType, fieldProps });
+    continueAskingFields = addNew;
+    log.info(`${chalk.keyword("yellow")("-------------------------")}`);
+  }
+
+  // console.log(fields);
+
   const modelNameLower = modelName.toLowerCase();
   const modelNamePluralLower = modelNamePlural.toLowerCase();
   modelName = modelNameLower.charAt(0).toUpperCase() + modelNameLower.slice(1);
