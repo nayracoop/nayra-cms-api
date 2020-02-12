@@ -1,6 +1,6 @@
 # Nayra CMS API
 
-Content Management System API (NodeJs, Express & MongoDB) with basic authentication and CRUD of entities. Base for templating in [nayra-cli] (https://github.com/nayracoop/nayra-cli)
+Content Management System API (NodeJs, Express & MongoDB) with basic authentication and CRUD of entities. Base for templating in [nayra-cli](https://github.com/nayracoop/nayra-cli)
 
  :sparkles: **This is a work in progress.** :sparkles:
 
