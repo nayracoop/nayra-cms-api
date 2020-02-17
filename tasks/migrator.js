@@ -105,7 +105,7 @@ const up = async (cb) => {
     // eslint-disable-next-line no-shadow
     (function run(files) {
       const file = files.shift();
-      if (file) {
+      if (file && file !== "readme.md") {
         tryToRun(file, () => {
           run(files);
         });
