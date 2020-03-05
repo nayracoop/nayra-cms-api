@@ -6,63 +6,133 @@ Users belong to a particular account and can create and modify resources.
 - path: `POST` api/login
 - small description: Login with registered username/email and password. Returns token to be used as authentication throughout the API.
 - path parameters:  null
-- query parameters:  null
-- request body:
-	``
-	username: {type: string, required: true, value: registered username or email},
-	password: {type: string, required: true, value: registered password}
-	``
+- query parameters:
+    ``
+    username: {type: string, required: true, value: registered username or email},
+    password: {type: string, required: true, value: registered password}
+    ``
+- request body: null
 - responses:
-	- 200: {} response model : user and token?
+	- 200: 
+      ```JSON
+      // response example
+      {
+        "user": {
+            "emailConfirmed": true,
+            "deleted": false,
+            "_id": "user_id_goes_here",
+            "firstName": "Super",
+            "lastName": "Admin",
+            "username": "admin",
+            "email": "admin@nayra.coop",
+            "accountId": "5e220b2889d3765282d4db93",
+            "updated": [],
+            "url": "/api/users/user_id_goes_here",
+            "id": "user_id_goes_here"
+        },
+        "token": "valid_token_goes_here"
+    }
+      ```
 	- 400: (wrong data)
 	- 401: unauthorized
 
 **errors right now:**
-    -  :warning: ASSERT wrong type of username and password? **didn't find** :point_left:
-    -  :warning: ASSERT missing required keys? **didn't find** :point_left:
-    -  :warning: ASSERT wrong type of request body? **didn't find** :point_left:
-    -  provided username does not exist in db? 401 "Not authenticated."
-    -  provided password is not valid? 401 "Not authenticated"
+    -  :warning: ASSERT wrong type of username and password? :point_right: -> query param is always a string
+    -  :warning: ASSERT missing required keys? **didn't find** :point_left: -> :warning: now 500 unexpected
+    -  provided username does not exist in db?  401  3 "Not authenticated."
+    -  provided password is not valid? 401 1 "Not authenticated"
 	
 ### `POST` Sign up
 - path: `POST` api/users/login
 - small description: creates a new user in the default account -> _how do we setup default account?_
-- path parameters: 
-- query parameters: 
+- path parameters: null
+- query parameters: null
 - request body:
+  ```Javascript
+    { 
+      "username": {type: string, required: true, unique:true},
+      "email": {type: string, required: true, unique:true},
+      "password": {type: string, required: true},
+      "firstName": {type: string, required: false},
+      "lastName": {type: string, required: false}
+    }
+  ```
 - responses:
 	- 200:
+  ```JSON
+    {
+      "emailConfirmed": true,
+      "deleted": false,
+      "_id": "new_user_id_goes_here",
+      "firstName": "Super",
+      "lastName": "Admin",
+      "username": "newUser",
+      "email": "newUser@nayra.coop",
+      "accountId": "5e220b2889d3765282d4db93",
+      "updated": [],
+      "url": "/api/users/new_user_id_goes_here",
+      "id": "new_user_id_goes_here"
+    }
+  ```
 	- 400: (wrong data)
 
 **errors**
-	- ASSERT request body is not a valid object: check error code
-	- :warning: ASSERT required fields are present && valid types right after the assert of the Object type. **didn't find** :point_left:
+	- ASSERT request body is not a valid object: check error code -> :warning: now its throwing 500 Unexpected Error, not OK
+	- :warning: ASSERT required fields are present :warning: **not working for password**
+  - :warning: ASSERT valid types right after the assert of the Object type. :warning: **working for everything but for the password**
+  - :warning: Duplicated key for username and email **now throwing 500 ERROR** should throw 400 duplicate key or something
 
-  - :warning:**Right now, this is taking the account ID from the req.body. So multiple new accounts can be created. Also, if req.body does not have an account, it searches for a name:"demo" account.**
+
+  - :warning: all new users are assigned to the same account
+  - :warning: **right now emailConfirmed can be set to true or false from signup, this is not ok.**
   - :warning: *Check if `try { await something } catch (e) {} ` is working or not in here*
   - :warning: *Check if user controller.signup is using userController.createNew or if it is using _baseController.createNew . In the former case, there is being a lot of duplicated code*
 
 
-### `POST` Create new users
+### `POST` Create new user
 - path: `POST` api/users
 - small description: Creates a new user in the same account of the creator's token. 
 - path parameters: null
 - query parameters: null
-- request body: [{user schema}] or {user schema}?
+- request body:
+    ```Javascript
+      { 
+        "username": {type: string, required: true, unique:true},
+        "email": {type: string, required: true, unique:true},
+        "password": {type: string, required: true},
+        "firstName": {type: string, required: false},
+        "lastName": {type: string, required: false}
+      }
+    ```
 - responses:
-	- 200: {} response model : new user created
+	- 200:
+    ```JSON
+    {
+        "emailConfirmed": true,
+        "deleted": false,
+        "_id": "new_user_id_goes_here",
+        "firstName": "Super",
+        "lastName": "Admin",
+        "username": "newUser",
+        "email": "newUser@nayra.coop",
+        "accountId": "5e220b2889d3765282d4db93",
+        "updated": [],
+        "url": "/api/users/new_user_id_goes_here",
+        "id": "new_user_id_goes_here"
+    }
+    ```
 	- 400: (wrong data)
-	- 401: unauthorized
+	- 401: Unauthorized
 
 **errores**
 	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
 	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
-	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
-	- ASSERT request body is an object
-	- ASSERT req.user (coming from checkJWT) is a valid object (write better error message)
-	- ASSERT password is required
-	- :warning: ASSERT all required fields are present & assert all fields are the correct type **didn't find** :point_left:
-	-  ASSERT body is an object [_baseController.createNew]
+	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards) [checkJWT]
+	- ASSERT req.user (coming from checkJWT) is a valid object (write better error message) [wouldn't know how to replicate...]
+	- ASSERT all required fields are present (works but password gets a different error than username and email)
+  - :warning: ASSERT all fields are the correct type **Doesn't work with password -> 500 unexpected** :point_left:
+	- :warning: ASSERT body is an object **not working, throwing 422 "Created user must have a password"**
+
 
 ### `GET` Get all users
 - path: `GET` api/users
