@@ -1,10 +1,10 @@
 - Getting started
 
-  - [Quick start](#)
+  - [Quick start](README.md)
 
-- REST API
-
-  - [Accounts](#)
+- API Documentation
+  - [Authentication](auth.md)
+  - [Accounts](accounts.md)
   - [Users](users.md)
   - [New Resources](#)
 

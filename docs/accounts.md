@@ -1,11 +1,13 @@
-# Accounts endpoints
+# Accounts
 
-accounts 
+Groups of resources and users 
 
-## POST signup
+### `POST` Create new accounts
 
-## POST login
+### `GET` Get all accounts
 
-## POST api/accounts
+### `GET` Get account by ID
 
-## GET api/accounts
+### `PUT` Update account by ID
+
+### `DELETE` Delete account by ID
