@@ -38,9 +38,9 @@ Users belong to a particular account and can create and modify resources.
 	- ASSERT request body is not a valid object: check error code
 	- :warning: ASSERT required fields are present && valid types right after the assert of the Object type. **didn't find** :point_left:
 
-:warning:**Right now, this is taking the account ID from the req.body. So multiple new accounts can be created. Also, if req.body does not have an account, it searches for a name:"demo" account.**
-:warning: *Check if `try { await something } catch (e) {} ` is working or not in here*
-:warning: *Check if user controller.signup is using userController.createNew or if it is using _baseController.createNew . In the former case, there is being a lot of duplicated code*
+  - :warning:**Right now, this is taking the account ID from the req.body. So multiple new accounts can be created. Also, if req.body does not have an account, it searches for a name:"demo" account.**
+  - :warning: *Check if `try { await something } catch (e) {} ` is working or not in here*
+  - :warning: *Check if user controller.signup is using userController.createNew or if it is using _baseController.createNew . In the former case, there is being a lot of duplicated code*
 
 
 ### `POST` Create new users

@@ -1,6 +1,6 @@
 - Getting started
 
-  - [Quick start](README.md)
+  - [Quick start](README.md "How to get started")
 
 - API Documentation
   - [Authentication](auth.md)
