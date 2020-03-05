@@ -231,7 +231,19 @@ Users belong to a particular account and can create and modify resources.
 - path parameters: 
     ` id: {type: string, required:true, description: the ID of the user}`
 - query parameters: null
-- request body: {user schema} -> modifiable params
+- request body:
+  ```
+    // one or many of the following fields can be provided
+    { 
+      "username": {type: string},
+      "email": {type: string},
+      "password": {type: string},
+      "firstName": {type: string},
+      "lastName": {type: string},
+      "emailConfirmed": {type: boolean}
+
+    }
+  ```
 - responses:
 	- 200: {} response model 
     ```JSON
@@ -246,7 +258,12 @@ Users belong to a particular account and can create and modify resources.
           "accountId": "5e220b2889d3765282d4db93",
           "updated": [],
           "url": "/api/users/user_id_goes_here",
-          "id": "user_id_goes_here"
+          "id": "user_id_goes_here",
+          "updated":
+            [
+              "by": "autor_of_update",
+              "at": "2020-01-23T15:37:22.000Z"
+            ]
       }
     ```
 	- 401: unauthorized
@@ -259,6 +276,11 @@ Users belong to a particular account and can create and modify resources.
 	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
   - ASSERT type ID object: 422 "ValidationError" ID is not a valid id object
   - ID NON existent in db : 404 "ValidationError" Users not found
+  - :warning: ASSERT wrong data type **not working, throwing "500 unexpected Cast to string failed for value ..."**
+  - :warning: Wrong body type & non-allowed fields **throw no error**
+
+  - :warning: **`accountId` can be updated and instantly disappears from the reach of the user. should we allow this to happen?**
+  - :warning: **A new `updated` entry occurs each time a request happens, even if it doesnt update anything. this should not happen**
 
 
 ### `DELETE` Delete user by ID
