@@ -41,7 +41,8 @@ Users belong to a particular account and can create and modify resources.
     -  :warning: ASSERT missing required keys? **didn't find** :point_left: -> :warning: now 500 unexpected
     -  provided username does not exist in db?  401  3 "Not authenticated."
     -  provided password is not valid? 401 1 "Not authenticated"
-	
+
+
 ### `POST` Sign up
 - path: `POST` api/users/login
 - small description: creates a new user in the default account -> _how do we setup default account?_
@@ -140,52 +141,55 @@ Users belong to a particular account and can create and modify resources.
 - path parameters: null
 - query parameters: 
     ```
-    {
-      **perPage**, // defaults to 5
-      firstName,
-      lastName,
-      email,
-      username, 
-      accountId,
-      deleted //(not working),
-      emailConfirmed //(not working),
-      createdBy //(not working)  ?
-      createdAt //(not working)  ?
-    }
+      perPage: number,// defaults to 5
+      firstName: string,
+      lastName: string,
+      email: string,
+      username: string, 
+      accountId: ObjectId to string,
+      emailConfirmed: boolean,
+      createdBy: ObjectId to string,
+      createdAt: ISO Date
     ```
 - request body: null
 - responses:
 	- 200
-        ```
+      ```JSON
         // response example
 	    {
-          "count": number,
+          "count": 1,
           "list":  [
             {
-              "emailConfirmed",
-              "deleted",
-              "username":,
-              "email": ,
-              "accountId": ,
-              "url": ,
-              "id": ,
-              "firstName" // (if present),
-              "lastName" // (if present),
-              "createdAt" // (if present),
-              "createdBy" // (if present),
-              "__v" //(? if present),
+              "emailConfirmed": true,
+              "deleted": false,
+              "username": "user_name",
+              "email": "user_email",
+              "accountId": "account_id",
+              "url": "api/users/user_id",
+              "id": "user_id",
+              "firstName": "first_name", // (if present),
+              "lastName": "last_name", // (if present),
+              "createdAt": "2020-01-20T19:25:48.000Z", // (if present),
+              "createdBy": "creator_id", // (if present),
+              "__v" : 0
             }
           ]
         }
         ```
-	- 400: (wrong data)
+	- 422: ValidationError
 	- 401: unauthorized
 
 **errores**
 	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
 	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
 	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
-	
+  - ASSERT invalid query param : 422 ValidationError
+  - ASSERT invalid query param type : 422 ValidationError  :warning: not working for some string fields throwing **500 "/[/: Unterminated character class &&& date  500 Cast to date failed for value"** 
+
+  -:warning: **Count is not working, always return total user documents in db**
+  -:warning: **query params `deleted`  not working (not throwing invalid param error & not filtering either)**
+
+
 ### `GET` Get user by ID
 - path: `GET` api/users/{id}
 - small description: Returns user by ID

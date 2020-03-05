@@ -1,5 +1,4 @@
 - Getting started
-
   - [Quick start](README.md "How to get started")
 
 - API Documentation
