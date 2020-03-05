@@ -137,7 +137,7 @@ Users belong to a particular account and can create and modify resources.
 
 ### `GET` Get all users
 - path: `GET` api/users
-- small description: Returns all users of the same account of the creator's token. If query params are provided, then returns only the users matching those filters. 
+- small description: Returns all users of the same account of the requester's token. If query params are provided, then it returns only the users matching those filters. 
 - path parameters: null
 - query parameters: 
     ```
@@ -177,7 +177,7 @@ Users belong to a particular account and can create and modify resources.
         }
         ```
 	- 422: ValidationError
-	- 401: unauthorized
+	- 401: Unauthorized
 
 **errores**
 	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]

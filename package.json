@@ -2,7 +2,7 @@
   "name": "nayra-cms-api",
   "version": "1.0.0",
   "main": "index.js",
-  "description": "an API",
+  "description": "CMS API created with nayra-cli tool",
   "license": "GNU General Public License v3.0",
   "config": {
     "testFiles": "+(cli|server)/**/{,**/}*.test.js"
