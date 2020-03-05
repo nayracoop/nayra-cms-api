@@ -33,7 +33,7 @@ Users belong to a particular account and can create and modify resources.
         "token": "valid_token_goes_here"
     }
       ```
-	- 400: (wrong data)
+	- 400: (wrong data => assert error? validation error?)
 	- 401: unauthorized
 
 **errors right now:**
@@ -122,7 +122,7 @@ Users belong to a particular account and can create and modify resources.
         "id": "new_user_id_goes_here"
     }
     ```
-	- 400: (wrong data)
+	- 400: (wrong data => assert error? validation error?)
 	- 401: Unauthorized
 
 **errores**
@@ -176,7 +176,7 @@ Users belong to a particular account and can create and modify resources.
           ]
         }
         ```
-	- 422: ValidationError
+	- 400: 422 (wrong data => assert error? validation error?)
 	- 401: Unauthorized
 
 **errores**
@@ -199,31 +199,31 @@ Users belong to a particular account and can create and modify resources.
 - request body: null
 - responses:
 	- 200: 
-		```
-    	// response example
-    	{
-          "emailConfirmed",
-          "deleted",
-          "username":,
-          "email": ,
-          "accountId": ,
-          "url": ,
-          "id": ,
-          "firstName" // (if present),
-          "lastName" // (if present),
-          "createdAt" // (if present),
-          "createdBy" // (if present),
-          "__v" //(? if present),
-        }
-        ```
-	- 400: (wrong data)
-	- 401: unauthorized
-	- 404: User not found
+		```JSON
+      {
+          "emailConfirmed": true,
+          "deleted": false,
+          "_id": "new_user_id_goes_here",
+          "firstName": "Super",
+          "lastName": "Admin",
+          "username": "user",
+          "email": "user@nayra.coop",
+          "accountId": "5e220b2889d3765282d4db93",
+          "updated": [],
+          "url": "/api/users/user_id_goes_here",
+          "id": "user_id_goes_here"
+      }
+    ```
+	- 401: Unauthorized
+	- 404: User not found  ("Validation error"?? i dont think so)
 
 **errores**
 	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
 	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
 	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
+  - ASSERT type ID object: 422 "ValidationError" ID is not a valid id object
+  - ID NON existent in db : 404 "ValidationError" Users not found
+
 	
 ### `PUT` Update user by ID
 - path: `PUT` api/users/{id}
@@ -234,30 +234,31 @@ Users belong to a particular account and can create and modify resources.
 - request body: {user schema} -> modifiable params
 - responses:
 	- 200: {} response model 
-    	```
-    	{
-          "emailConfirmed",
-          "deleted",
-          "username":,
-          "email": ,
-          "accountId": ,
-          "url": ,
-          "id": ,
-          "firstName" // (if present),
-          "lastName" // (if present),
-          "createdAt" // (if present),
-          "createdBy" // (if present),
-          "__v" //(? if present),
-        }
-        ```
-	- 400: (wrong data)
+    ```JSON
+      {
+          "emailConfirmed": true,
+          "deleted": false,
+          "_id": "user_id_goes_here",
+          "firstName": "Super",
+          "lastName": "Admin",
+          "username": "user",
+          "email": "user@nayra.coop",
+          "accountId": "5e220b2889d3765282d4db93",
+          "updated": [],
+          "url": "/api/users/user_id_goes_here",
+          "id": "user_id_goes_here"
+      }
+    ```
 	- 401: unauthorized
-	- 404: User not found
+	- 404: User not found ("validation error"?? idont think so)
+  - 422: Wrong data (ValidationError)
 	
 **errores**
 	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
 	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
 	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
+  - ASSERT type ID object: 422 "ValidationError" ID is not a valid id object
+  - ID NON existent in db : 404 "ValidationError" Users not found
 
 
 ### `DELETE` Delete user by ID
@@ -268,13 +269,17 @@ Users belong to a particular account and can create and modify resources.
 - query parameters: null
 - request body: null
 - responses:
-	- 200: {} response model : ?????
-	- 400: (wrong data)
+	- 204: no content (deletion was OK)
 	- 401: unauthorized
-	- 404: User not found
+	- 404: User not found ("validation error"?? idont think so)
+  - 422: Wrong data (ValidationError)
 
 
 **errores**
 	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
 	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
 	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
+  - ASSERT type ID object: 422 "ValidationError" ID is not a valid id object
+  - ID NON existent in db : 404 "ValidationError" Users not found
+
+  - :warning: **when re-deleting user it throws the same 204 code. you can delete multiple times the same ID**
