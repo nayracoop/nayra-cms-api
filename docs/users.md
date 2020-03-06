@@ -86,7 +86,6 @@ Users belong to a particular account and can create and modify resources.
 
   - :warning: all new users are assigned to the same account
   - :warning: **right now emailConfirmed can be set to true or false from signup, this is not ok.**
-  - :warning: *Check if `try { await something } catch (e) {} ` is working or not in here*
   - :warning: *Check if user controller.signup is using userController.createNew or if it is using _baseController.createNew . In the former case, there is being a lot of duplicated code*
 
 
