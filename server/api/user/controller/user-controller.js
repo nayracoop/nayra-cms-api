@@ -114,6 +114,12 @@ class UserController extends BaseController {
           const newUser = req.body;
 
           assert(_.isObject(newUser), "User is not a valid object.");
+          assert(newUser.password, "Password is required");
+          assert(typeof newUser.password === "string", "Password must be a string");
+
+          assert(newUser.username, "Username is required");
+          assert(newUser.email, "Email is required");
+
 
           // newUser.apiKey = buffer.toString("hex");
           if (!newUser.accountId) {
