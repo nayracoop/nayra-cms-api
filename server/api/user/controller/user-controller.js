@@ -61,20 +61,16 @@ class UserController extends BaseController {
     crypto.randomBytes(48, createUser);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async login(req, res, next) {
     passport.authenticate("local", { session: false }, async (err, user) => {
       try {
         if (err) {
           throw err;
         }
-        // const account = await this.account.getById(user.accountId);
-        // if (!account || !account.privateKey) {
-        //   throw new AuthenticationError(9, 401, "Not authenticated.");
-        // }
-        // if (!account.isValid) {
-        //   throw new AuthenticationError(10, 401, "Not authenticated.");
-        // }
-        // const token = jwt.sign(user.toObject(), account.privateKey);
+        assert(req.query.username, "Username is required");
+        assert(req.query.password, "Password is required");
+    
         const token = jwt.sign(user.toJSON(), JWT_SECRET);
 
         res.status(200).json({ user: user.toJSON(), token });
