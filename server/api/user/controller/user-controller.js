@@ -118,7 +118,10 @@ class UserController extends BaseController {
           assert(typeof newUser.password === "string", "Password must be a string");
 
           assert(newUser.username, "Username is required");
+          assert(typeof newUser.username === "string", "Username must be a string");
+
           assert(newUser.email, "Email is required");
+          assert(typeof newUser.email === "string", "Email must be a string");
 
 
           // newUser.apiKey = buffer.toString("hex");
