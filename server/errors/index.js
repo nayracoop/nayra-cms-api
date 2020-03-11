@@ -28,6 +28,12 @@ const normalizeAndLogError = (moduleName, { id }, error) => {
   switch (error.name) {
     case "UnexpectedError":
     case "PermissionError":
+    case "MongoError":
+      // catch duplicate key errors
+      if (error.code === 11000) {
+        throwable.statusCode = 409;
+      }
+      break;
     case "AuthenticationError":
       break;
     case "ValidationError":
@@ -75,7 +81,6 @@ class PermissionError extends CustomError {
     this.name = "PermissionError";
   }
 }
-
 // 01, 'Incorrect username or password'
 // 02, 'Unknown authentication error'
 // 03, 'Unexistent user'
