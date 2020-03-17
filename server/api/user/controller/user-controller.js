@@ -43,6 +43,7 @@ class UserController extends BaseController {
           assert(_.isObject(newUser), "User is not a valid object.");
           assert(_.isObject(opUser), "opUser is not a valid object.");
           assert(newUser.password, "Created user must have a password");
+          assert(typeof newUser.password === "string", "Password must be a string");
 
           const salt = crypto.randomBytes(16).toString("hex");
           const hash = crypto.pbkdf2Sync(newUser.password, salt, 1000, 64, "sha512").toString("hex");
