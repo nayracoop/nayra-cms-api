@@ -1,5 +1,6 @@
 const assert = require("assert");
-const { normalizeAndLogError } = require("../errors");
+const mongoose = require("mongoose");
+const { normalizeAndLogError, ValidationError } = require("../errors");
 
 const fieldIsContainedInModelKeys = (keys, field) => {
   const normalizedField = field.replace(/^-/, "");
@@ -55,7 +56,9 @@ const castBooleanParams = (model, fieldsQuery) => {
   const query = {};
   Object.keys(fieldsQuery).forEach((key) => {
     if (model.obj[key].type === Boolean) {
-
+      if (!(fieldsQuery[key] === "true") || !(fieldsQuery[key] === "false")) {
+        throw new ValidationError(1, 422, `${key} must be a boolean`);
+      }
       query[key] = fieldsQuery[key] === "true" ? true : false;
     } else {
       query[key] = fieldsQuery[key];
@@ -64,6 +67,17 @@ const castBooleanParams = (model, fieldsQuery) => {
 
   return query;
 };
+
+const validateObjectIdParams = (model, fieldsQuery) => {
+  Object.keys(fieldsQuery).forEach((key) => {
+    if (model.obj[key].type === mongoose.Schema.Types.ObjectId) {
+      if (!(mongoose.Types.ObjectId.isValid(fieldsQuery[key]))) {
+        throw new ValidationError(1, 422, `${key} must be an ObjectId`);
+      }
+    }
+  });
+};
+
 
 // TO DO refactor in order to avoid many loops of params array/object
 // castQueryToRegex and  castBooleanParams can be maybe unified
@@ -76,6 +90,7 @@ const shapeQuery = model => async (req, res, next) => {
 
     validatePaginationQuery(model, reqQuery);
     validateFieldsQuery(model, query);
+    validateObjectIdParams(model, query);
     const queryWithBooleans = castBooleanParams(model, query);
 
     const limit = +perPage || 5;
