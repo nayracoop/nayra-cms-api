@@ -69,8 +69,8 @@ class UserController extends BaseController {
         if (err) {
           throw err;
         }
-        assert(req.query.username, "Username is required");
-        assert(req.query.password, "Password is required");
+        assert(req.body.username, "Username is required");
+        assert(req.body.password, "Password is required");
     
         const token = jwt.sign(user.toJSON(), JWT_SECRET);
 
