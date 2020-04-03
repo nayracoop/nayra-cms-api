@@ -22,6 +22,8 @@ class CustomError extends Error {
   }
 }
 
+// the exposed via API REST (or end user) error should be different from the server logging
+// e.g. don't expose mongo especific error in response use 4xx or 5xx codes instead
 const normalizeAndLogError = (moduleName, { id }, error) => {
   let throwable = error;
 
@@ -52,7 +54,8 @@ const normalizeAndLogError = (moduleName, { id }, error) => {
   }
 
   const logger = LoggerConfig.getChild(moduleName, id, throwable, throwable.statusCode);
-  logger.error(throwable.message);
+  // internaly log the error
+  logger.error(error);
 
   return throwable;
 };
