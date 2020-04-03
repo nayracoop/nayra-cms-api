@@ -852,6 +852,7 @@ describe("User endpoints", () => {
 
     // now returning 500, should return 409 and a better error message
     it("should return an error if username or email are already taken", (done) => {
+      // validate for username
       request(app)
         .post("/api/users/signup")
         .send({
@@ -861,12 +862,13 @@ describe("User endpoints", () => {
           accountId: testAccountId
         })
         .expect("Content-Type", /json/)
-        .expect(500)
+        .expect(422)
         .then((res) => {
-          expect(res.body.name).to.eql("UnexpectedError");
-          expect(res.body.code).to.eql(99);
-          expect(res.body.message).to.eql("E11000 duplicate key error collection: nayra_cms_test.users index: username_1 dup key: { : \"username1\" }");
+          expect(res.body.name).to.eql("NotAvailableError");
+          expect(res.body.code).to.eql(422);
+          expect(res.body.message).to.eql("Not available or duplicated field");
 
+          // validating for email
           return request(app)
             .post("/api/users/signup")
             .send({
@@ -875,11 +877,11 @@ describe("User endpoints", () => {
               password,
               accountId: testAccountId
             })
-            .expect(500)
+            .expect(422)
             .then((_res) => {
-              expect(_res.body.name).to.eql("UnexpectedError");
-              expect(_res.body.code).to.eql(99);
-              expect(_res.body.message).to.eql("E11000 duplicate key error collection: nayra_cms_test.users index: email_1 dup key: { : \"username1@nayra.coop\" }");
+              expect(_res.body.name).to.eql("NotAvailableError");
+              expect(_res.body.code).to.eql(422);
+              expect(_res.body.message).to.eql("Not available or duplicated field");
               done();
             });
         })

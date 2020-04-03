@@ -31,7 +31,10 @@ const normalizeAndLogError = (moduleName, { id }, error) => {
     case "MongoError":
       // catch duplicate key errors
       if (error.code === 11000) {
-        throwable.statusCode = 409;
+        throwable.statusCode = 422;
+        throwable.message = "Not available or duplicated field";
+        throwable.name = "NotAvailableError";
+        throwable.code = 422;
       }
       break;
     case "AuthenticationError":
