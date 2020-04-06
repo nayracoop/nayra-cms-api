@@ -41,15 +41,19 @@ const normalizeAndLogError = (moduleName, { id }, error) => {
       break;
     case "AuthenticationError":
       break;
+    case "BadRequestError":
+      break;
+    case "NotFoundError":
+      break;
     case "ValidationError":
-      throwable = new ValidationError(error.code || 80, error.statusCode || 422, error.message);
+      throwable = new ValidationError(error.code || 422, error.statusCode || 422, error.message);
       break;
     case "AssertionError":
     case "AssertionError [ERR_ASSERTION]":
-      throwable = new ValidationError(1, 422, error.message);
+      throwable = new ValidationError(422, 422, error.message);
       break;
     default:
-      throwable = new UnexpectedError(99, 500, error.message);
+      throwable = new UnexpectedError(500, 500, error.message);
       break;
   }
 
@@ -112,11 +116,27 @@ class UnexpectedError extends CustomError {
   }
 }
 
+class BadRequestError extends CustomError {
+  constructor(code, statusCode, message) {
+    super(400, 400, message);
+    this.name = "BadRequestError";
+  }
+}
+
+class NotFoundError extends CustomError {
+  constructor(code, statusCode, message) {
+    super(404, 404, message);
+    this.name = "NotFoundError";
+  }
+}
+
 module.exports = {
   ValidationError,
   PermissionError,
   AuthenticationError,
   UnexpectedError,
+  BadRequestError,
+  NotFoundError,
   normalizeAndLogError,
   handleError
 };

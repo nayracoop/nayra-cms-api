@@ -12,7 +12,8 @@ const { UserSchema } = require("../model/user-model");
 
 const { AccountDao } = require("../../account/dao/account-dao");
 const { AccountSchema } = require("../../account/model/account-model");
-const { AuthenticationError, normalizeAndLogError } = require("../../../errors");
+const { ValidationError, AuthenticationError, normalizeAndLogError } = require("../../../errors");
+const { validationResult } = require('express-validator');
 
 const { JWT_SECRET } = process.env;
 
@@ -64,6 +65,15 @@ class UserController extends BaseController {
 
   // eslint-disable-next-line class-methods-use-this
   async login(req, res, next) {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // return res.status(422).json({ errors: errors.array() });
+      // maybe use individual validation msg
+      const throwable = normalizeAndLogError("User", res, new ValidationError(422, 422, "username or password are not a string or missing"));
+      return next(throwable);
+    }
+
     passport.authenticate("local", { session: false }, async (err, user) => {
       try {
         if (err) {
@@ -71,7 +81,7 @@ class UserController extends BaseController {
         }
         assert(req.body.username, "Username is required");
         assert(req.body.password, "Password is required");
-    
+
         const token = jwt.sign(user.toJSON(), JWT_SECRET);
 
         res.status(200).json({ user: user.toJSON(), token });

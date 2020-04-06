@@ -137,32 +137,32 @@ describe("User endpoints", () => {
     });
 
     // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
-    it("should return 500 if the provided username is not a string", (done) => {
+    it("should return 422 if the provided username is not a string", (done) => {
       request(app)
         .post("/api/login")
         .send({ username: ["hey", "notAstring"], password })
         .expect("Content-Type", /json/)
-        .expect(500)
+        .expect(422)
         .then((res) => {
-          expect(res.body.name).to.eql("UnexpectedError");
-          expect(res.body.code).to.eql(99);
-          expect(res.body.message).to.eql("user.toJSON is not a function");
+          expect(res.body.name).to.eql("ValidationError");
+          // expect(res.body.code).to.eql(422);
+          expect(res.body.message).to.eql("username or password are not a string or missing");
           done();
         })
         .catch(done);
     });
 
     // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
-    it("should return 500 if the provided password is not a string", (done) => {
+    it("should return 422 if the provided password is not a string", (done) => {
       request(app)
         .post("/api/login")
         .send({ username: "username1", password: ["hey", "notAstring"] })
         .expect("Content-Type", /json/)
-        .expect(500)
+        .expect(422)
         .then((res) => {
-          expect(res.body.name).to.eql("UnexpectedError");
-          expect(res.body.code).to.eql(99);
-          expect(res.body.message).to.eql("user.toJSON is not a function");
+          expect(res.body.name).to.eql("ValidationError");
+          // expect(res.body.code).to.eql(422);
+          expect(res.body.message).to.eql("username or password are not a string or missing");
           done();
         })
         .catch(done);
@@ -219,16 +219,31 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
+    it("should not accept a bad boolean string in query param", (done) => {
+      request(app)
+        .get("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .query({ emailConfirmed: "gatito" })
+        .expect(422)
+        .then((res) => {
+          expect(res.body).to.include.keys(["code", "name", "message"]);
+          expect(res.body.message).to.be.eql("emailConfirmed must be a boolean");
+          expect(res.body.name).to.be.eql("ValidationError");
+          done();
+        })
+        .catch(done);
+    });
+
     // TO-DO define the propper error codes and mesagges for documentation and ussage
-    it("should return a 422 error if query contain forbidden params", (done) => {
+    it("should return a 400 error if query contain forbidden params", (done) => {
       request(app)
         .get("/api/users")
         .set("Authorization", `Bearer ${token}`)
         .query({ username: "user", hash: "should not accept the hash" })
-        .expect(422)
+        .expect(400)
         .then((res) => {
-          expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.code).to.eql(1);
+          expect(res.body.name).to.eql("BadRequest");
+          // expect(res.body.code).to.eql(1);
           expect(res.body.message).to.eql("Filter for field defined (hash) is not permitted");
           done();
         })
@@ -295,10 +310,10 @@ describe("User endpoints", () => {
         .post("/api/users")
         .set("Authorization", `Bearer ${token}`)
         .send({ password: "newuser" })
-        .expect(422)
+        .expect(400)
         .then((res) => {
-          expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.code).to.eql(80);
+          expect(res.body.name).to.eql("BadRequestError");
+          // expect(res.body.code).to.eql(400);
           expect(res.body.message).to.eql("User validation failed: email: Path `email` is required., username: Path `username` is required.");
           done();
         })
@@ -310,10 +325,10 @@ describe("User endpoints", () => {
         .post("/api/users")
         .set("Authorization", `Bearer ${token}`)
         .send({ username: "newuser" })
-        .expect(422)
+        .expect(400)
         .then((res) => {
-          expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.code).to.eql(1);
+          expect(res.body.name).to.eql("BadRequestError");
+          // expect(res.body.code).to.eql(400);
           expect(res.body.message).to.eql("Created user must have a password");
           done();
         })
@@ -341,7 +356,7 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.code).to.eql(80);
+          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("User validation failed: username: Cast to String failed for value \"[]\" at path \"username\"");
           done();
         })
@@ -356,7 +371,7 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.code).to.eql(80);
+          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("User validation failed: email: Cast to String failed for value \"[]\" at path \"email\"");
           done();
         })
@@ -883,58 +898,6 @@ describe("User endpoints", () => {
               expect(_res.body.code).to.eql(422);
               expect(_res.body.message).to.eql("Not available or duplicated field");
               done();
-            });
-        })
-        .catch(done);
-    });
-
-    // now missing password throws 500 instead of 422
-    it("should return an error if username or email are already taken", (done) => {
-      request(app)
-        .post("/api/users/signup")
-        .send({
-          email: "username11111@nayra.coop",
-          password,
-          accountId: testAccountId
-        })
-        .expect("Content-Type", /json/)
-        .expect(422)
-        .then((res) => {
-          expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.code).to.eql(80);
-          expect(res.body.message).to.eql("User validation failed: username: Path `username` is required.");
-
-          return request(app)
-            .post("/api/users/signup")
-            .send({
-              username: "username1111",
-              password,
-              accountId: testAccountId
-            })
-            .expect(422)
-            .then((_res) => {
-              expect(_res.body.name).to.eql("ValidationError");
-              expect(_res.body.code).to.eql(80);
-              expect(_res.body.message).to.eql("User validation failed: email: Path `email` is required.");
-
-              return request(app)
-                .post("/api/users/signup")
-                .send({
-                  email: "user@mail.coop",
-                  username: "username1111",
-                  accountId: testAccountId
-                })
-                .expect(500)
-                .then((__res) => {
-                  expect(__res.body.name).to.eql("UnexpectedError");
-                  expect(__res.body.code).to.eql(99);
-                  expect(__res.body.message).to.eql("Pass phrase must be a buffer");
-
-                  // expect(__res.body.name).to.eql("ValidationError");
-                  // expect(__res.body.code).to.eql(80);
-                  // expect(__res.body.message).to.eql("User validation failed: password: Path `password` is required.");
-                  done();
-                });
             });
         })
         .catch(done);

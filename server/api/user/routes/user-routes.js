@@ -3,6 +3,7 @@ const {
 } = require("../../../middleware");
 const { UserSchema } = require("../model/user-model");
 const { UserController } = require("../controller/user-controller");
+const { check, validationResult } = require('express-validator');
 
 class UserRoutes {
   static init(router) {
@@ -29,7 +30,7 @@ class UserRoutes {
 
     router
       .route("/api/login")
-      .post(userController.login);
+      .post([check("username").exists().isString(), check("password").exists().isString(), userController.login]);
   }
 }
 

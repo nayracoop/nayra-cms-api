@@ -56,8 +56,8 @@ const castBooleanParams = (model, fieldsQuery) => {
   const query = {};
   Object.keys(fieldsQuery).forEach((key) => {
     if (model.obj[key].type === Boolean) {
-      if (!(fieldsQuery[key] === "true") || !(fieldsQuery[key] === "false")) {
-        throw new ValidationError(1, 422, `${key} must be a boolean`);
+      if (!(fieldsQuery[key] === "true") && !(fieldsQuery[key] === "false")) {
+        throw new ValidationError(400, 400, `${key} must be a boolean`);
       }
       query[key] = fieldsQuery[key] === "true" ? true : false;
     } else {
@@ -72,7 +72,7 @@ const validateObjectIdParams = (model, fieldsQuery) => {
   Object.keys(fieldsQuery).forEach((key) => {
     if (model.obj[key].type === mongoose.Schema.Types.ObjectId) {
       if (!(mongoose.Types.ObjectId.isValid(fieldsQuery[key]))) {
-        throw new ValidationError(1, 422, `${key} must be an ObjectId`);
+        throw new ValidationError(400, 400, `${key} must be an ObjectId`);
       }
     }
   });
@@ -92,7 +92,6 @@ const shapeQuery = model => async (req, res, next) => {
     validateFieldsQuery(model, query);
     validateObjectIdParams(model, query);
     const queryWithBooleans = castBooleanParams(model, query);
-
     const limit = +perPage || 5;
     const currentPage = +page || 1;
     const skip = +limit * (+currentPage - 1) || 0;
