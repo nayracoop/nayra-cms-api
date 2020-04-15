@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const _ = require("lodash");
 const assert = require("assert");
 
-const { ObjectId } = mongoose.Types;
+const { validationResult } = require("express-validator");
 const { BaseController } = require("../../_base/controller/base-controller");
 const { UserDao } = require("../dao/user-dao");
 const { UserSchema } = require("../model/user-model");
@@ -13,7 +13,7 @@ const { UserSchema } = require("../model/user-model");
 const { AccountDao } = require("../../account/dao/account-dao");
 const { AccountSchema } = require("../../account/model/account-model");
 const { ValidationError, AuthenticationError, normalizeAndLogError } = require("../../../errors");
-const { validationResult } = require('express-validator');
+const { ObjectId } = mongoose.Types;
 
 const { JWT_SECRET } = process.env;
 

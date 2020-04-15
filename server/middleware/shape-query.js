@@ -1,5 +1,6 @@
 const assert = require("assert");
 const mongoose = require("mongoose");
+const { validationResult } = require("express-validator");
 const { normalizeAndLogError, ValidationError } = require("../errors");
 
 const fieldIsContainedInModelKeys = (keys, field) => {
@@ -83,6 +84,15 @@ const validateObjectIdParams = (model, fieldsQuery) => {
 // castQueryToRegex and  castBooleanParams can be maybe unified
 const shapeQuery = model => async (req, res, next) => {
   try {
+    // so far the boolean User.emailConfirmed is the only field being validated
+    // TODO think about schema validation in GET /someModel
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // maybe use individual validation msg
+      const throwable = normalizeAndLogError("User", res, new ValidationError(422, 422, "emailConfirmed must be a boolean"));
+      return next(throwable);
+    }
+
     const { query: reqQuery } = req;
     const {
       perPage, page, showUpdates, sortBy, ...query

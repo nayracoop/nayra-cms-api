@@ -12,7 +12,7 @@ class UserRoutes {
     router
       .route("/api/users")
       .post([checkJwt, userController.createNew])
-      .get([checkJwt, shapeQuery(UserSchema), userController.getAll]);
+      .get([checkJwt, check("emailConfirmed").optional().isIn(["true", "false"]), shapeQuery(UserSchema), userController.getAll]);
 
     router
       .route("/api/users/signup")
