@@ -240,10 +240,10 @@ describe("User endpoints", () => {
         .get("/api/users")
         .set("Authorization", `Bearer ${token}`)
         .query({ username: "user", hash: "should not accept the hash" })
-        .expect(400)
+        .expect(422)
         .then((res) => {
-          expect(res.body.name).to.eql("BadRequest");
-          // expect(res.body.code).to.eql(1);
+          expect(res.body.name).to.eql("ValidationError");
+          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("Filter for field defined (hash) is not permitted");
           done();
         })
@@ -310,10 +310,10 @@ describe("User endpoints", () => {
         .post("/api/users")
         .set("Authorization", `Bearer ${token}`)
         .send({ password: "newuser" })
-        .expect(400)
+        .expect(422)
         .then((res) => {
-          expect(res.body.name).to.eql("BadRequestError");
-          // expect(res.body.code).to.eql(400);
+          expect(res.body.name).to.eql("ValidationError");
+          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("User validation failed: email: Path `email` is required., username: Path `username` is required.");
           done();
         })
@@ -325,10 +325,10 @@ describe("User endpoints", () => {
         .post("/api/users")
         .set("Authorization", `Bearer ${token}`)
         .send({ username: "newuser" })
-        .expect(400)
+        .expect(422)
         .then((res) => {
-          expect(res.body.name).to.eql("BadRequestError");
-          // expect(res.body.code).to.eql(400);
+          expect(res.body.name).to.eql("ValidationError");
+          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("Created user must have a password");
           done();
         })
@@ -469,7 +469,7 @@ describe("User endpoints", () => {
     it("should throw an error if the provided id is not a valid id", (done) => {
       const expectedError = {
         name: "ValidationError",
-        code: 1,
+        code: 422,
         message: "Id is not a valid ObjectId."
       };
 
