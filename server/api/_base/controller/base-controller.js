@@ -3,7 +3,7 @@ const _ = require("lodash");
 const assert = require("assert");
 
 const { ObjectId } = mongoose.Types;
-const { normalizeAndLogError, ValidationError } = require("../../../errors");
+const { normalizeAndLogError, ValidationError, NotFoundError } = require("../../../errors");
 
 class BaseController {
   constructor(theModel) {
@@ -59,7 +59,7 @@ class BaseController {
       const thing = await this.theModel.getById(id, user);
 
       if (!thing) {
-        throw new ValidationError(70, 404, `${this.theModuleName} does not exist or does not belong to your account.`);
+        throw new NotFoundError(404, 404, `The requested ${this.theModuleName} member with id ${id} does not exist or does not belong to your account.`);
       }
       res.status(200).json(thing);
     } catch (error) {
@@ -80,7 +80,7 @@ class BaseController {
       const updatedThing = await this.theModel.updateById(id, thing, user);
 
       if (!updatedThing) {
-        throw new ValidationError(70, 404, `${this.theModuleName} not found.`);
+        throw new NotFoundError(404, 404, `The requested ${this.theModuleName} member with id ${id} does not exist or does not belong to your account.`);
       }
       res.status(200).json(updatedThing);
     } catch (error) {
@@ -98,7 +98,7 @@ class BaseController {
 
       const deleteResults = await this.theModel.removeById(id, user);
       if (deleteResults.nModified === 0) {
-        throw new ValidationError(70, 404, `${this.theModuleName} not found.`);
+        throw new NotFoundError(404, 404, `The requested ${this.theModuleName} member with id ${id} does not exist or does not belong to your account.`);
       }
       res.status(204).json();
     } catch (error) {

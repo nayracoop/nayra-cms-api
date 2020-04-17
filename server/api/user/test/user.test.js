@@ -235,7 +235,7 @@ describe("User endpoints", () => {
     });
 
     // TO-DO define the propper error codes and mesagges for documentation and ussage
-    it("should return a 400 error if query contain forbidden params", (done) => {
+    it("should return a 422 error if query contain forbidden params", (done) => {
       request(app)
         .get("/api/users")
         .set("Authorization", `Bearer ${token}`)
@@ -431,9 +431,9 @@ describe("User endpoints", () => {
 
     it("should not get user from another account", (done) => {
       const expectedError = {
-        name: "ValidationError",
-        code: 70,
-        message: "Users does not exist or does not belong to your account."
+        name: "NotFoundError",
+        code: 404,
+        message: `The requested Users member with id ${userFromOtherAccountId} does not exist or does not belong to your account.`
       };
 
       request(app)
@@ -450,9 +450,9 @@ describe("User endpoints", () => {
     it("should throw an error if the provided id doesn't belong to an existing record", (done) => {
       const invalidId = mongoose.Types.ObjectId();
       const expectedError = {
-        name: "ValidationError",
-        code: 70,
-        message: "Users does not exist or does not belong to your account."
+        name: "NotFoundError",
+        code: 404,
+        message: `The requested Users member with id ${invalidId} does not exist or does not belong to your account.`
       };
 
       request(app)
@@ -575,16 +575,16 @@ describe("User endpoints", () => {
     });
 
     // should throw an error if the provided id doesn't belong to an existing record
-    it("should not be able to delete a user record from another account", (done) => {
+    it("should not be able to update a user record from another account", (done) => {
       request(app)
         .put(`/api/users/${userFromAnotherAccountId}`)
         .set("Authorization", `Bearer ${token}`)
         .send({ firstName: "Updated!", lastName: "Well done!" })
         .expect(404)
         .then((res) => {
-          expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.code).to.eql(70);
-          expect(res.body.message).to.eql("Users not found.");
+          expect(res.body.name).to.eql("NotFoundError");
+          // expect(res.body.code).to.eql(404);
+          expect(res.body.message).to.eql(`The requested Users member with id ${userFromAnotherAccountId} does not exist or does not belong to your account.`);
 
           return UserModel.findOne({ _id: userFromAnotherAccountId });
         })
@@ -609,6 +609,25 @@ describe("User endpoints", () => {
         .set("Authorization", "Bearer not a token")
         .send({ firstName: "Updated!", lastName: "Well done!" })
         .expect(401)
+        .then((res) => {
+          expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should throw an error if the provided id doesn't belong to an existing record", (done) => {
+      const invalidId = mongoose.Types.ObjectId();
+      const expectedError = {
+        name: "NotFoundError",
+        code: 404,
+        message: `The requested Users member with id ${invalidId} does not exist or does not belong to your account.`
+      };
+
+      request(app)
+        .put(`/api/users/${invalidId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404)
         .then((res) => {
           expect(res.body).to.eql(expectedError);
           done();
@@ -692,9 +711,9 @@ describe("User endpoints", () => {
         .set("Authorization", `Bearer ${token}`)
         .expect(404)
         .then((res) => {
-          expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.code).to.eql(70);
-          expect(res.body.message).to.eql("Users not found.");
+          expect(res.body.name).to.eql("NotFoundError");
+          // expect(res.body.code).to.eql(440);
+          expect(res.body.message).to.eql(`The requested Users member with id ${userFromAnotherAccountId} does not exist or does not belong to your account.`);
 
           return UserModel.findOne({ _id: userFromAnotherAccountId });
         })
