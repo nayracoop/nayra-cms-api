@@ -6,12 +6,14 @@ Users belong to a particular account and can create and modify resources.
 - path: `POST` api/login
 - small description: Login with registered username/email and password. Returns token to be used as authentication throughout the API.
 - path parameters:  null
-- query parameters:
+- query parameters: null
+- request body: 
     ``
-    username: {type: string, required: true, value: registered username or email},
-    password: {type: string, required: true, value: registered password}
+    {
+      username: {type: string, required: true, value: registered username or email},
+      password: {type: string, required: true, value: registered password}
+    }
     ``
-- request body: null
 - responses:
 	- 200: 
       ```JSON
