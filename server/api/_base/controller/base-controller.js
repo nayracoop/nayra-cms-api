@@ -3,7 +3,7 @@ const _ = require("lodash");
 const assert = require("assert");
 
 const { ObjectId } = mongoose.Types;
-const { normalizeAndLogError, ValidationError, NotFoundError } = require("../../../errors");
+const { normalizeAndLogError, NotFoundError } = require("../../../errors");
 
 class BaseController {
   constructor(theModel) {

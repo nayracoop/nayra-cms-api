@@ -636,7 +636,7 @@ describe("User endpoints", () => {
     });
   });
 
-  context("DELETED api/users/:id  (remove by Id)", () => {
+  context("DELETE api/users/:id  (remove by Id)", () => {
     const userToDeleteId = mongoose.Types.ObjectId();
     const userFromAnotherAccountId = mongoose.Types.ObjectId();
 
@@ -672,15 +672,25 @@ describe("User endpoints", () => {
       });
     });
 
-    it("should delete a user record", (done) => {
+    it("should delete a user record once and not allow to delete it again", (done) => {
       request(app)
         .delete(`/api/users/${userToDeleteId}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(204)
-        .then(() => UserModel.findOne({ username: "test"}))
+        .then(() => UserModel.findOne({ username: "test" }))
         .then((user) => {
           expect(user).to.eql(null);
-          done();
+          request(app)
+            .delete(`/api/users/${userToDeleteId}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(404)
+            .then((res) => {
+              // since the record was deleted, check that it is not possible to delete again
+              expect(res.body.name).to.eql("NotFoundError");
+              expect(res.body.message).to.eql(`The requested Users member with id ${userToDeleteId} does not exist or does not belong to your account.`);    
+              done();
+            })
+            .catch(done);
         })
         .catch(done);
     });
@@ -705,7 +715,6 @@ describe("User endpoints", () => {
         .expect(404)
         .then((res) => {
           expect(res.body.name).to.eql("NotFoundError");
-          // expect(res.body.code).to.eql(440);
           expect(res.body.message).to.eql(`The requested Users member with id ${userFromAnotherAccountId} does not exist or does not belong to your account.`);
 
           return UserModel.findOne({ _id: userFromAnotherAccountId });
