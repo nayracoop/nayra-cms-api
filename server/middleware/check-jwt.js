@@ -5,7 +5,7 @@ const checkJwt = async (req, res, next) => {
   try {
     const authHeader = req.get("Authorization");
     if (!authHeader) {
-      throw new AuthenticationError(5, 401, "Not authenticated.");
+      throw new AuthenticationError("INVALID_AUTHORIZATION_HEADERS", 401, "Not authenticated.");
     }
     passport.authenticate("jwt", { session: false }, (err, user, info, status) => {
       if (err) {

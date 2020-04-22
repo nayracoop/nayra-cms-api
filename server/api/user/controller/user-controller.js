@@ -12,7 +12,8 @@ const { UserSchema } = require("../model/user-model");
 
 const { AccountDao } = require("../../account/dao/account-dao");
 const { AccountSchema } = require("../../account/model/account-model");
-const { ValidationError, AuthenticationError, normalizeAndLogError } = require("../../../errors");
+const { ValidationError, normalizeAndLogError } = require("../../../errors");
+
 const { ObjectId } = mongoose.Types;
 
 const { JWT_SECRET } = process.env;
@@ -103,10 +104,10 @@ class UserController extends BaseController {
   //     const user = await this.user.getById(id);
       
   //     if (!user) {
-  //       throw new AuthenticationError(3, 401, "Not authenticated.");
+  //       throw new AuthenticationError(401, 401, "Not authenticated.");
   //     }
   //     if (user.email !== email) {
-  //       throw new AuthenticationError(4, 401, "Invalid email to confirm");
+  //       throw new AuthenticationError(401, 401, "Invalid email to confirm");
   //     }
   //     await this.user.confirmEmail(id);
   //     res.status(204).end();

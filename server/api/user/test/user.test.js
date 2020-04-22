@@ -107,7 +107,6 @@ describe("User endpoints", () => {
         .expect(401)
         .then((res) => {
           expect(res.body.name).to.eql("AuthenticationError");
-          // expect(res.body.code).to.eql(401); // incrrect user or password
           expect(res.body.message).to.eql("Not authenticated.");
 
           return UserModel.findOne({ username: testUser });
@@ -128,7 +127,6 @@ describe("User endpoints", () => {
         .expect(401)
         .then((res) => {
           expect(res.body.name).to.eql("AuthenticationError");
-          expect(res.body.code).to.eql(3);
           expect(res.body.message).to.eql("Not authenticated.");
 
           done();
@@ -145,14 +143,12 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("username or password are not a string or missing");
           done();
         })
         .catch(done);
     });
 
-    // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
     it("should return 422 if the provided password is not a string", (done) => {
       request(app)
         .post("/api/login")
@@ -161,7 +157,6 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("username or password are not a string or missing");
           done();
         })
@@ -234,7 +229,6 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // TO-DO define the propper error codes and mesagges for documentation and ussage
     it("should return a 422 error if query contain forbidden params", (done) => {
       request(app)
         .get("/api/users")
@@ -243,7 +237,6 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("Filter for field defined (hash) is not permitted");
           done();
         })
@@ -313,7 +306,6 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("User validation failed: email: Path `email` is required., username: Path `username` is required.");
           done();
         })
@@ -328,7 +320,6 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("Created user must have a password");
           done();
         })
@@ -356,7 +347,6 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("User validation failed: username: Cast to String failed for value \"[]\" at path \"username\"");
           done();
         })
@@ -371,15 +361,13 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          // expect(res.body.code).to.eql(422);
           expect(res.body.message).to.eql("User validation failed: email: Cast to String failed for value \"[]\" at path \"email\"");
           done();
         })
         .catch(done);
     });
 
-    // now returning unexpected error instead of validation error
-    it.skip("should return an error if password is not a string", (done) => {
+    it.only("should return an error if password is not a string", (done) => {
       request(app)
         .post("/api/users")
         .set("Authorization", `Bearer ${token}`)
@@ -387,7 +375,6 @@ describe("User endpoints", () => {
         .expect(500)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.code).to.eql(80);
           expect(res.body.message).to.eql("User validation failed: password: Cast to String failed for value \"[]\" at path \"password\"");
           done();
         })
@@ -540,7 +527,6 @@ describe("User endpoints", () => {
       });
     });
 
-    // should update and add updated at field
     it("should update and add updated at field", (done) => {
       request(app)
         .put(`/api/users/${userToUpdateId}`)
@@ -559,7 +545,6 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // should not add invalid fields
     it("should not add invalid fields", (done) => {
       request(app)
         .put(`/api/users/${userToUpdateId}`)
@@ -574,7 +559,6 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // should throw an error if the provided id doesn't belong to an existing record
     it("should not be able to update a user record from another account", (done) => {
       request(app)
         .put(`/api/users/${userFromAnotherAccountId}`)
@@ -583,7 +567,6 @@ describe("User endpoints", () => {
         .expect(404)
         .then((res) => {
           expect(res.body.name).to.eql("NotFoundError");
-          // expect(res.body.code).to.eql(404);
           expect(res.body.message).to.eql(`The requested Users member with id ${userFromAnotherAccountId} does not exist or does not belong to your account.`);
 
           return UserModel.findOne({ _id: userFromAnotherAccountId });
@@ -595,7 +578,6 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // should throw an error if unvalid token is provided
     it("should return an error if unvalid token is provided", (done) => {
       const expectedError = {
         error: {
@@ -886,7 +868,6 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // now returning 500, should return 409 and a better error message
     it("should return an error if username or email are already taken", (done) => {
       // validate for username
       request(app)
