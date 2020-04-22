@@ -66,7 +66,8 @@ const normalizeAndLogError = (moduleName, { id }, error) => {
 
 const handleError = (error, req, res, _next) => {
   const status = error.statusCode || 500;
-  const { name, code, message } = error;
+  const { name, message } = error;
+  const code = status === 401 ? status : error.code;
   res.status(status).json({ name, code, message });
 };
 
