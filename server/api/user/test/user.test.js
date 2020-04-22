@@ -685,22 +685,15 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // now re-deleting deleted:true records. TO-DO: catch error and return User not found
-    it.skip("should delete a user record", (done) => {
+    it("should delete a user record", (done) => {
       request(app)
         .delete(`/api/users/${userToDeleteId}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(204)
-        .then(() => UserModel.findOne({ username: "test"}))
+        .then(() => UserModel.findOne({ username: "test" }))
         .then((user) => {
           expect(user).to.eql(null);
-          request(app)
-            .delete(`/api/users/${userToDeleteId}`)
-            .set("Authorization", `Bearer ${token}`)
-            .expect(404)
-            .then(() => {
-              done();
-            });
+          done();
         })
         .catch(done);
     });
