@@ -80,7 +80,7 @@ class LoggerConfig {
 
   static getChild(moduleName, id = null, body = null, statusCode = null) {
     if (!loggerInstance) {
-      throw new UnexpectedError(99, 500, "logger was not initialized");
+      throw new UnexpectedError(500, 500, "logger was not initialized");
     }
     const childConfig = { moduleName };
     if (id) {

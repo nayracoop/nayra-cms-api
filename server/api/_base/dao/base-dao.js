@@ -64,8 +64,9 @@ class BaseDao {
     };
 
     this.theSchema.statics.removeById = async function removeById(_id, { _id: userId, accountId }) {
-      const deleteResults = await this.model(theModelName).delete({ _id, accountId },
-        userId);
+      const thing = await this.model(theModelName).findOne({ _id, accountId });
+      const deleteResults = thing ? await this.model(theModelName).delete({ _id, accountId },
+        userId) : { nModified: 0 };
       return deleteResults;
     };
 

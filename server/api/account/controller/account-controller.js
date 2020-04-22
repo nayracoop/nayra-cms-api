@@ -69,7 +69,7 @@ class AccountController extends BaseController {
       const updatedAccount = await this.account.updateById(id, account, user);
 
       if (!updatedAccount) {
-        throw new ValidationError(70, 404, "Account not found.");
+        throw new ValidationError(404, 404, "Account not found.");
       }
       res.status(200).json(updatedAccount);
     } catch (error) {

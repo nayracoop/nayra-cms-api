@@ -20,11 +20,11 @@ class PassportConfig {
         try {
           const user = await userDao.getByUsernameOrEmail(username);
           if (!user) {
-            throw new AuthenticationError(3, 401, "Not authenticated.");
+            throw new AuthenticationError("UNEXISTENT_USER", 401, "Not authenticated.");
           }
           if (!user.validPassword(password)) {
             user.newFailedLoginAttempt(password);
-            throw new AuthenticationError(1, 401, "Not authenticated.");
+            throw new AuthenticationError("WRONG_DATA", 401, "Not authenticated.");
           }
           return cb(null, user);
         } catch (error) {
@@ -45,7 +45,7 @@ class PassportConfig {
         try {
           const user = await userDao.getByUsernameOrEmail(jwtPayload.username);
           if (!user) {
-            throw new AuthenticationError(7, 401, "Not authenticated.");
+            throw new AuthenticationError("JWT_USER_NOT_FOUND", 401, "Not authenticated.");
           }
           // const account = await accountDao.getById(user.accountId);
           // if (!account) {
