@@ -35,7 +35,7 @@ Users belong to a particular account and can create and modify resources.
         "token": "valid_token_goes_here"
     }
       ```
-	- 400: (wrong data => assert error? validation error?)
+	- 422: validation error
 	- 401: unauthorized
 
 **errors right now:**
@@ -61,7 +61,7 @@ Users belong to a particular account and can create and modify resources.
     }
   ```
 - responses:
-	- 200:
+	- 201:
   ```JSON
     {
       "emailConfirmed": true,
@@ -77,18 +77,14 @@ Users belong to a particular account and can create and modify resources.
       "id": "new_user_id_goes_here"
     }
   ```
-	- 400: (wrong data)
+  - 400: Bad request (wrong JSON body syntax) 
+	- 422: Not available (duplicated username or email) | Validation error (missing required field)
 
 **errors**
 	- ASSERT request body is not a valid object: check error code -> :warning: now its throwing 500 Unexpected Error, not OK
-	- :warning: ASSERT required fields are present :warning: **not working for password**
   - :warning: ASSERT valid types right after the assert of the Object type. :warning: **working for everything but for the password**
-  - :warning: Duplicated key for username and email **now throwing 500 ERROR** should throw 400 duplicate key or something
-
-
   - :warning: all new users are assigned to the same account
   - :warning: **right now emailConfirmed can be set to true or false from signup, this is not ok.**
-  - :warning: *Check if user controller.signup is using userController.createNew or if it is using _baseController.createNew . In the former case, there is being a lot of duplicated code*
 
 
 ### `POST` Create new user
@@ -107,7 +103,7 @@ Users belong to a particular account and can create and modify resources.
       }
     ```
 - responses:
-	- 200:
+	- 201:
     ```JSON
     {
         "emailConfirmed": true,
@@ -120,10 +116,12 @@ Users belong to a particular account and can create and modify resources.
         "accountId": "5e220b2889d3765282d4db93",
         "updated": [],
         "url": "/api/users/new_user_id_goes_here",
-        "id": "new_user_id_goes_here"
+        "id": "new_user_id_goes_here",
+        "createdBy": "creator_id_goes_here",
+        "createdAt": "some ISO Date"
     }
     ```
-	- 400: (wrong data => assert error? validation error?)
+	- 422: Validation error (missing required fields, wrong type)
 	- 401: Unauthorized
 
 **errores**
@@ -148,7 +146,7 @@ Users belong to a particular account and can create and modify resources.
       email: string,
       username: string, 
       accountId: ObjectId to string,
-      emailConfirmed: boolean,
+      emailConfirmed: boolean (true | false),
       createdBy: ObjectId to string,
       createdAt: ISO Date
     ```
@@ -177,7 +175,7 @@ Users belong to a particular account and can create and modify resources.
           ]
         }
         ```
-	- 400: 422 (wrong data => assert error? validation error?)
+	- 422  validation error (wrong type, not valid param)
 	- 401: Unauthorized
 
 **errores**
@@ -216,14 +214,13 @@ Users belong to a particular account and can create and modify resources.
       }
     ```
 	- 401: Unauthorized
-	- 404: User not found  ("Validation error"?? i dont think so)
+	- 404: User not found
 
 **errores**
 	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
 	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
 	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
   - ASSERT type ID object: 422 "ValidationError" ID is not a valid id object
-  - ID NON existent in db : 404 "ValidationError" Users not found
 
 	
 ### `PUT` Update user by ID
@@ -268,15 +265,13 @@ Users belong to a particular account and can create and modify resources.
       }
     ```
 	- 401: unauthorized
-	- 404: User not found ("validation error"?? idont think so)
-  - 422: Wrong data (ValidationError)
+	- 404: User not found
+  - 422: Validation error
 	
 **errores**
 	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
 	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
 	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
-  - ASSERT type ID object: 422 "ValidationError" ID is not a valid id object
-  - ID NON existent in db : 404 "ValidationError" Users not found
   - :warning: ASSERT wrong data type **not working, throwing "500 unexpected Cast to string failed for value ..."**
   - :warning: Wrong body type & non-allowed fields **throw no error**
 
