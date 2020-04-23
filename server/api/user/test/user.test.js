@@ -326,19 +326,6 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // this is now returning the "password required" error.
-    it.skip("should return an error if req.body is not an object", (done) => {
-      request(app)
-        .post("/api/users")
-        .set("Authorization", `Bearer ${token}`)
-        .send("bananas")
-        .expect(422)
-        .then((res) => {
-          done();
-        })
-        .catch(done);
-    });
-
     it("should return an error if username is not a string", (done) => {
       request(app)
         .post("/api/users")

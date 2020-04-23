@@ -23,7 +23,7 @@ describe("checkJwt middleware", () => {
       .expect(401)
       .then((res) => {
         expect(res.body.name).to.be.eql("AuthenticationError");
-        expect(res.body.code).to.be.eql(5);
+        expect(res.body.code).to.be.eql(401);
         expect(res.body.message).to.be.eql("Not authenticated.");
         done();
       })
@@ -57,7 +57,7 @@ describe("checkJwt middleware", () => {
       .expect(401)
       .then((res) => {
         expect(res.body.name).to.be.eql("AuthenticationError");
-        expect(res.body.code).to.be.eql(7);
+        expect(res.body.code).to.be.eql(401);
         expect(res.body.message).to.be.eql("Not authenticated.");
         done();
       })
