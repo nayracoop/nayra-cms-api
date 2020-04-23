@@ -137,12 +137,7 @@ class UserController extends BaseController {
           assert(newUser.email, "Email is required");
           assert(typeof newUser.email === "string", "Email must be a string");
 
-
           // newUser.apiKey = buffer.toString("hex");
-          if (!newUser.accountId) {
-            const demoAccounts = await this.account.getAll({ name: "demo" });
-            newUser.accountId = demoAccounts[0]._id;
-          }
 
           const salt = crypto.randomBytes(16).toString("hex");
           const hash = crypto.pbkdf2Sync(newUser.password, salt, 1000, 64, "sha512").toString("hex");
