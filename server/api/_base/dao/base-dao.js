@@ -31,13 +31,14 @@ class BaseDao {
       sort,
       query
     }, { accountId }) {
-      const thingsCount = await this.model(theModelName).countDocuments({ deleted: false, accountId });
+      const thingsCount = await this.model(theModelName).countDocuments({ ...query, deleted: false, accountId }).select(select);
       const things = await this.model(theModelName).find({
         ...query, accountId
       }).skip(skip)
         .limit(limit)
         .select(select)
         .sort(sort);
+
       return {
         count: thingsCount,
         list: things

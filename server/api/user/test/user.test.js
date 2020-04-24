@@ -189,7 +189,7 @@ describe("User endpoints", () => {
         .expect(200)
         .then((res) => {
           expect(res.body).to.include.keys(["count", "list"]);
-          expect(res.body.count).to.be.eql(usersCount);
+          expect(res.body.count).to.be.eql(1);
           expect(res.body.list.length).to.be.eql(1);
           expect(res.body.list[0].username).to.be.eql(users[0].username);
           done();
@@ -260,7 +260,7 @@ describe("User endpoints", () => {
         .send(newUser)
         .expect(201)
         .then((res) => {
-          expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
+          expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url",
             "emailConfirmed", "firstName", "lastName"]);
 
           expect(res.body).to.not.have.property(["hash", "salt", "password"]);
@@ -367,7 +367,7 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    it.only("should return an error if password is not a string", (done) => {
+    it("should return an error if password is not a string", (done) => {
       request(app)
         .post("/api/users")
         .set("Authorization", `Bearer ${token}`)
@@ -742,7 +742,7 @@ describe("User endpoints", () => {
         .expect(201)
         .then((res) => {
           expect(res.body.username).to.eql("newUser");
-          expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
+          expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url",
             "emailConfirmed"]);
           return request(app)
             .post("/api/login")

@@ -40,6 +40,8 @@ const UserSchema = mongoose.Schema({
       delete ret.hash;
       delete ret.failedLoginAttempts;
       delete ret.previousHashes;
+      delete ret.deleted;
+      delete ret.deletedAt;
       //
       return ret;
     },
