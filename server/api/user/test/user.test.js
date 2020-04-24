@@ -326,19 +326,6 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // this is now returning the "password required" error.
-    it.skip("should return an error if req.body is not an object", (done) => {
-      request(app)
-        .post("/api/users")
-        .set("Authorization", `Bearer ${token}`)
-        .send("bananas")
-        .expect(422)
-        .then((res) => {
-          done();
-        })
-        .catch(done);
-    });
-
     it("should return an error if username is not a string", (done) => {
       request(app)
         .post("/api/users")
@@ -372,10 +359,10 @@ describe("User endpoints", () => {
         .post("/api/users")
         .set("Authorization", `Bearer ${token}`)
         .send({ username: "username", password: [], email: "user@name" })
-        .expect(500)
+        .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.message).to.eql("User validation failed: password: Cast to String failed for value \"[]\" at path \"password\"");
+          expect(res.body.message).to.eql("Password must be a string");
           done();
         })
         .catch(done);
@@ -782,12 +769,11 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // this is not working as expected. returns first account of the collection. 
-    it.skip("should assign a demo accountId if no accountId is provided", (done) => {
+    it("should assign the main accountId (in .env) to the user", (done) => {
       fixtures.save("accounts", {
         Account: [
           {
-            _id: mongoose.Types.ObjectId(),
+            _id: mongoose.Types.ObjectId(process.env.ACCOUNT_ID),
             name: "not demo",
             email: "test@test",
             isSuperAdmin: false,
@@ -795,49 +781,7 @@ describe("User endpoints", () => {
           },
           {
             _id: testAccountId,
-            name: "demo",
-            email: "test@nayra.coop",
-            isSuperAdmin: false,
-            privateKey: "super secret"
-          }
-        ]
-      });
-
-      fixtures("accounts", (err, _data) => {
-        if (err) {
-          console.error("Fixture error", err);
-        }
-      });
-
-      request(app)
-        .post("/api/users/signup")
-        .send({
-          username: "newUser",
-          email: "newUser@mail",
-          password
-        })
-        .then((res) => {
-          expect(res.body.accountId).to.eql(testAccountId.toString());
-          done();
-        })
-        .catch(done);
-    });
-
-    // what if the account with provided id doesn't exist?
-    // now it is creating the user with this accountId anyway
-    it("should assign the provided accountId to the user", (done) => {
-      fixtures.save("accounts", {
-        Account: [
-          {
-            _id: mongoose.Types.ObjectId(),
-            name: "not demo",
-            email: "test@test",
-            isSuperAdmin: false,
-            privateKey: "super secret"
-          },
-          {
-            _id: testAccountId,
-            name: "demo",
+            name: "another one",
             email: "test@nayra.coop",
             isSuperAdmin: false,
             privateKey: "super secret"
@@ -862,7 +806,7 @@ describe("User endpoints", () => {
           accountId: fakeAccountId
         })
         .then((res) => {
-          expect(res.body.accountId).to.eql(fakeAccountId.toString());
+          expect(res.body.accountId).to.eql(process.env.ACCOUNT_ID);
           done();
         })
         .catch(done);

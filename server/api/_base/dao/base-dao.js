@@ -18,6 +18,8 @@ class BaseDao {
         const { _id: userId, accountId } = creator;
         something.createdBy = userId;
         something.accountId = accountId;
+      } else {
+        something.accountId = mongoose.Types.ObjectId(process.env.ACCOUNT_ID);
       }
       something.createdAt = moment().format();
       const newThing = await something.save();
