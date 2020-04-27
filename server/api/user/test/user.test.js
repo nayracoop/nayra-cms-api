@@ -96,10 +96,9 @@ describe("User endpoints", () => {
         .then((res) => {
           assert(res.body.token, "body response should contain a token");
           assert(res.body.user, "body response should contain a user object");
-
-          expect(res.body.user).to.include.keys(["_id", "username", "email", "accountId", "url", "deleted",
-            "emailConfirmed"]);
-          expect(res.body.user).to.not.have.property(["hash", "salt"]);
+          expect(res.body.user).to.have.keys("_id", "username", "email", "accountId", "url",
+            "emailConfirmed", "id", "updated", "__v");
+          expect(res.body.user).to.not.have.any.keys("hash", "salt", "deleted", "deletedAt");
           done();
         })
         .catch(done);
@@ -181,8 +180,11 @@ describe("User endpoints", () => {
         .then((res) => {
           expect(res.body).to.include.keys(["count", "list"]);
           expect(res.body.count).to.be.eql(usersCount);
-          // be carefull someday pagination could change this
+          
           expect(res.body.list.length).to.be.eql(usersCount);
+          res.body.list.forEach((user) => {
+            expect(user).to.not.have.any.keys("deleted", "deletedAt");
+          });
           // maybe should check if id of response are contained in users fixtures
           done();
         })
@@ -201,6 +203,9 @@ describe("User endpoints", () => {
           expect(res.body).to.include.keys(["count", "list"]);
           expect(res.body.count).to.be.eql(usersCount);
           expect(res.body.list.length).to.be.eql(perPage);
+          res.body.list.forEach((user) => {
+            expect(user).to.not.include.keys(["deleted", "deletedAt"]);
+          });
           done();
         })
         .catch(done);
@@ -287,9 +292,7 @@ describe("User endpoints", () => {
         .then((res) => {
           expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url",
             "emailConfirmed", "firstName", "lastName"]);
-
-          expect(res.body).to.not.have.property(["hash", "salt", "password"]);
-
+          expect(res.body).to.not.have.any.keys("hash", "salt", "password", "deleted", "deletedAt");
           expect(res.body.username).to.eql(newUser.username);
           expect(res.body.email).to.eql(newUser.email);
           expect(res.body.firstName).to.eql(newUser.firstName);
@@ -423,6 +426,7 @@ describe("User endpoints", () => {
         .then((res) => {
           expect(res.body.id).to.eql(adminId.toString());
           expect(res.body.accountId).to.eql(testAccountId.toString());
+          expect(res.body).to.not.have.any.keys("hash", "salt", "deleted", "deletedAt");
           done();
         })
         .catch(done);
@@ -756,6 +760,8 @@ describe("User endpoints", () => {
           expect(res.body.username).to.eql("newUser");
           expect(res.body).to.include.keys(["_id", "username", "email", "accountId", "url",
             "emailConfirmed"]);
+          expect(res.body).to.not.have.any.keys("hash", "salt", "deleted", "deletedAt");
+
           return request(app)
             .post("/api/login")
             .send({ username: "newUser", password })
