@@ -39,6 +39,14 @@ const users = [
     salt
   },
   {
+    accountId: testAccountId,
+    username: "username3",
+    email: "username3@nayra.coop",
+    emailConfirmed: true,
+    hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
+    salt
+  },
+  {
     _id: userFromOtherAccountId,
     accountId: mongoose.Types.ObjectId(),
     username: "userFromOtherAccount",
@@ -176,6 +184,23 @@ describe("User endpoints", () => {
           // be carefull someday pagination could change this
           expect(res.body.list.length).to.be.eql(usersCount);
           // maybe should check if id of response are contained in users fixtures
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return a paged list of users from same account", (done) => {
+      // count should give the total number of entries beyond the paged result
+      const perPage = 2;
+      request(app)
+        .get("/api/users")
+        .query({ perPage })
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).to.include.keys(["count", "list"]);
+          expect(res.body.count).to.be.eql(usersCount);
+          expect(res.body.list.length).to.be.eql(perPage);
           done();
         })
         .catch(done);
