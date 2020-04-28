@@ -289,7 +289,7 @@ describe("User endpoints", () => {
       const newUser = {
         username: "newuser",
         password,
-        email: "new@user.co",
+        email: "new@user.com",
         firstName: "New",
         lastName: "User"
       };
@@ -368,11 +368,11 @@ describe("User endpoints", () => {
       request(app)
         .post("/api/users")
         .set("Authorization", `Bearer ${token}`)
-        .send({ username: [], password: "secret", email: "usern@m.e" })
+        .send({ username: [], password: "secret", email: "usern@mail.com" })
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.message).to.eql("User validation failed: username: Cast to String failed for value \"[]\" at path \"username\"");
+          expect(res.body.message).to.eql("Username must be a string");
           done();
         })
         .catch(done);
@@ -386,7 +386,7 @@ describe("User endpoints", () => {
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
-          expect(res.body.message).to.eql("User validation failed: email: Cast to String failed for value \"[]\" at path \"email\"");
+          expect(res.body.message).to.eql("Email is wrong");
           done();
         })
         .catch(done);
@@ -396,7 +396,7 @@ describe("User endpoints", () => {
       request(app)
         .post("/api/users")
         .set("Authorization", `Bearer ${token}`)
-        .send({ username: "username", password: [], email: "user@name" })
+        .send({ username: "username", password: [], email: "user@name.com" })
         .expect(422)
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
@@ -790,7 +790,7 @@ describe("User endpoints", () => {
         .post("/api/users/signup")
         .send({
           username: "newUser",
-          email: "newUser@mail",
+          email: "newUser@mail.coop",
           password,
           accountId: testAccountId
         })
@@ -808,7 +808,7 @@ describe("User endpoints", () => {
             .expect(200)
             .then((_res) => {
               expect(_res.body.user.username).to.eql("newUser");
-              expect(_res.body.user.email).to.eql("newUser@mail");
+              expect(_res.body.user.email).to.eql("newUser@mail.coop");
               done();
             });
         })
@@ -819,7 +819,7 @@ describe("User endpoints", () => {
       const newUser = {
         username: "newuser",
         password,
-        email: "new@user.co",
+        email: "new@user.coop",
         firstName: "New",
         lastName: "User",
         accountId: testAccountId
@@ -846,7 +846,7 @@ describe("User endpoints", () => {
           {
             _id: mongoose.Types.ObjectId(process.env.ACCOUNT_ID),
             name: "not demo",
-            email: "test@test",
+            email: "test@test.coop",
             isSuperAdmin: false,
             privateKey: "super secret"
           },
@@ -872,7 +872,7 @@ describe("User endpoints", () => {
         .post("/api/users/signup")
         .send({
           username: "newUser",
-          email: "newUser@mail",
+          email: "newUser@mail.coop",
           password,
           accountId: fakeAccountId
         })

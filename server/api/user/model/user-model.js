@@ -49,9 +49,46 @@ const UserSchema = mongoose.Schema({
   }
 });
 
+const UserValidationSchema = {
+  username: {
+    in: ["body"],
+    optional:true,
+    errorMessage: "Username must be a string",
+    isString: true
+  },
+  password: {
+    in: ["body"],
+    isString: true,
+    errorMessage: "Password must be a string",
+    optional: true
+  },
+  email: {
+    in: ["body"],
+    isEmail: true,
+    optional: true,
+    errorMessage: "Email is wrong"
+  },
+  emailConfirmed: {
+    isBoolean: true,
+    toBoolean: true,
+    optional: true,
+    errorMessage: "emailConfirmed must be a boolean"
+  },
+  firstName: {
+    isString: true,
+    errorMessage: "firstName must be a string",
+    optional: true
+  },
+  lastName: {
+    isString: true,
+    errorMessage: "lastName must be a string",
+    optional: true
+  }
+};
 
 UserSchema.virtual("url").get(function url() { return `/api/users/${this._id}`; });
 
 module.exports = {
-  UserSchema
+  UserSchema,
+  UserValidationSchema
 };

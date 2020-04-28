@@ -1,9 +1,9 @@
+const { check, checkSchema } = require("express-validator");
 const {
-  checkJwt, shapeQuery
+  checkJwt, shapeQuery, validateSchema
 } = require("../../../middleware");
-const { UserSchema } = require("../model/user-model");
+const { UserSchema, UserValidationSchema } = require("../model/user-model");
 const { UserController } = require("../controller/user-controller");
-const { check, validationResult } = require('express-validator');
 
 class UserRoutes {
   static init(router) {
@@ -11,12 +11,12 @@ class UserRoutes {
 
     router
       .route("/api/users")
-      .post([checkJwt, userController.createNew])
+      .post([checkJwt, validateSchema(checkSchema(UserValidationSchema)), userController.createNew])
       .get([checkJwt, check("emailConfirmed").optional().isIn(["true", "false"]), shapeQuery(UserSchema), userController.getAll]);
 
     router
       .route("/api/users/signup")
-      .post(userController.signup);
+      .post([validateSchema(checkSchema(UserValidationSchema)), userController.signup]);
 
     // router
     //   .route("/api/users/confirmEmail")
@@ -25,7 +25,7 @@ class UserRoutes {
     router
       .route("/api/users/:id")
       .get([checkJwt, userController.getById])
-      .put([checkJwt, userController.updateById])
+      .put([checkJwt, validateSchema(checkSchema(UserValidationSchema)), userController.updateById])
       .delete([checkJwt, userController.removeById]);
 
     router
