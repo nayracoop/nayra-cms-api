@@ -28,7 +28,8 @@ const users = [
     email: "username1@nayra.coop",
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
-    salt
+    salt,
+    updated: []
   },
   {
     accountId: testAccountId,
@@ -36,7 +37,8 @@ const users = [
     email: "username2@nayra.coop",
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
-    salt
+    salt,
+    updated: []
   },
   {
     accountId: testAccountId,
@@ -44,7 +46,8 @@ const users = [
     email: "username3@nayra.coop",
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
-    salt
+    salt,
+    updated: []
   },
   {
     _id: userFromOtherAccountId,
@@ -53,12 +56,21 @@ const users = [
     email: "mariana@notnayra.coop",
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
-    salt
+    salt,
+    updated: []
   }
 ];
 
 // users from nayra account
 const usersCount = users.length - 1;
+
+// validate responses
+const fieldsToInclude = ["_id", "username", "email", "accountId", "url", "emailConfirmed", "id", "__v"];
+const fieldsToExclude = ["hash", "salt", "deleted", "deletedAt"];
+const responseExpect = (entity, include, notInclude) => {
+  expect(entity).to.have.keys(...include);
+  expect(entity).to.not.have.any.keys(...notInclude);
+};
 
 describe("User endpoints", () => {
   // for test purposes, all passwords are '123456'
@@ -96,9 +108,7 @@ describe("User endpoints", () => {
         .then((res) => {
           assert(res.body.token, "body response should contain a token");
           assert(res.body.user, "body response should contain a user object");
-          expect(res.body.user).to.have.keys("_id", "username", "email", "accountId", "url",
-            "emailConfirmed", "id", "updated", "__v");
-          expect(res.body.user).to.not.have.any.keys("hash", "salt", "deleted", "deletedAt");
+          responseExpect(res.body.user, [...fieldsToInclude, "updated"], fieldsToExclude);
           done();
         })
         .catch(done);
@@ -183,7 +193,7 @@ describe("User endpoints", () => {
           
           expect(res.body.list.length).to.be.eql(usersCount);
           res.body.list.forEach((user) => {
-            expect(user).to.not.have.any.keys("deleted", "deletedAt");
+            responseExpect(user, fieldsToInclude, fieldsToExclude);
           });
           // maybe should check if id of response are contained in users fixtures
           done();
@@ -204,7 +214,7 @@ describe("User endpoints", () => {
           expect(res.body.count).to.be.eql(usersCount);
           expect(res.body.list.length).to.be.eql(perPage);
           res.body.list.forEach((user) => {
-            expect(user).to.not.include.keys(["deleted", "deletedAt"]);
+            responseExpect(user, fieldsToInclude, fieldsToExclude);
           });
           done();
         })
@@ -426,7 +436,7 @@ describe("User endpoints", () => {
         .then((res) => {
           expect(res.body.id).to.eql(adminId.toString());
           expect(res.body.accountId).to.eql(testAccountId.toString());
-          expect(res.body).to.not.have.any.keys("hash", "salt", "deleted", "deletedAt");
+          responseExpect(res.body, [...fieldsToInclude, "updated"], fieldsToExclude);
           done();
         })
         .catch(done);
@@ -549,7 +559,15 @@ describe("User endpoints", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({ firstName: "Updated!", lastName: "Well done!" })
         .expect(200)
-        .then(() => UserModel.findOne({ username: "test" }))
+        .then((res) => {
+          // response validation
+          responseExpect(res.body, [...fieldsToInclude, "updated", "firstName", "lastName"], fieldsToExclude);
+          expect(res.body.firstName).to.eql("Updated!");
+          expect(res.body.lastName).to.eql("Well done!");
+          expect(res.body.updated.length).to.eql(1);
+          expect(res.body.updated[0].by).to.eql(adminId.toString());
+          return UserModel.findOne({ username: "test" });
+        })
         .then((user) => {
           expect(user.firstName).to.eql("Updated!");
           expect(user.lastName).to.eql("Well done!");
