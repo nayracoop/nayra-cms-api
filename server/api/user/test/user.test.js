@@ -599,7 +599,7 @@ describe("User endpoints", () => {
 
     // no field validation, returns 200 with nothing changed
     // should return 422 validation error
-    it.skip("should not add invalid fields", (done) => {
+    it("should not add invalid fields", (done) => {
       request(app)
         .put(`/api/users/${userToUpdateId}`)
         .set("Authorization", `Bearer ${token}`)

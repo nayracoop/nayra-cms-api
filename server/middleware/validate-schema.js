@@ -1,11 +1,7 @@
-const { normalizeAndLogError, ValidationError } = require("../errors");
 const { validationResult } = require("express-validator");
+const { normalizeAndLogError, ValidationError } = require("../errors");
 
 const validateSchema = (validations) => {
-  // for now, this function only validates TYPES ,
-  // required/optional field validation is more tricky,
-  // as POST/SINGUP demand some fields to be required but
-  // PUT does not have any required fields
   return async (req, res, next) => {
     try {
       await Promise.all(validations.map(validation => validation.run(req)));
