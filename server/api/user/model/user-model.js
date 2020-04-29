@@ -68,6 +68,12 @@ const UserValidationSchema = {
     optional: true,
     errorMessage: "Email is wrong"
   },
+  accountId: {
+    in: ["body"],
+    optional: true,
+    errorMessage: "accountId must be a valid ObjectId",
+    isMongoId: true
+  },
   emailConfirmed: {
     isBoolean: true,
     toBoolean: true,
