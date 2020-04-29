@@ -39,6 +39,9 @@ const normalizeAndLogError = (moduleName, { id }, error) => {
         throwable.code = 422;
       }
       break;
+    case "StrictModeError":
+      throwable = new ValidationError(error.code || 422, error.statusCode || 422, error.message);
+      break;
     case "AuthenticationError":
       break;
     case "BadRequestError":

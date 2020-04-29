@@ -597,19 +597,20 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // no field validation, returns 200 with nothing changed
-    // should return 422 validation error
     it("should not add invalid fields", (done) => {
       request(app)
         .put(`/api/users/${userToUpdateId}`)
         .set("Authorization", `Bearer ${token}`)
         .send({ coolField: "i want to be in the user too!" })
-        .expect(200)
-        .then(() => UserModel.findOne({ username: "test" }))
+        .expect(422)
+        .then((res) => {
+          expect(res.body.message).to.eql("Field `coolField` is not in schema and strict mode is set to throw.");
+          return UserModel.findOne({ username: "test" });
+        })
         .then((user) => {
           expect(user.coolField).to.eql(undefined);
-          expect(user.updated.length).to.eql(1);
-          expect(user.updated[0].by).to.eql(adminId);
+          // expect no new entries on updated array
+          expect(user.updated.length).to.eql(0);
           done();
         })
         .catch(done);

@@ -52,6 +52,7 @@ class UserController extends BaseController {
           newUser.salt = salt;
           newUser.hash = hash;
 
+          delete newUser.password;
           const user = await this.user.createNew(newUser, opUser);
           res.status(201).json(user);
         }
@@ -143,6 +144,8 @@ class UserController extends BaseController {
           const hash = crypto.pbkdf2Sync(newUser.password, salt, 1000, 64, "sha512").toString("hex");
           newUser.salt = salt;
           newUser.hash = hash;
+
+          delete newUser.password;
 
           const user = await this.user.createNew(newUser, null);
           res.status(201).json(user);

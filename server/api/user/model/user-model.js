@@ -32,6 +32,7 @@ const UserSchema = mongoose.Schema({
   failedLoginAttempts: [{ failedPassword: String, onDate: Date }],
   ...BaseSchema
 }, {
+  strict: "throw",
   collection: "users",
   // hide sensible data and include virtuals
   toJSON: {
