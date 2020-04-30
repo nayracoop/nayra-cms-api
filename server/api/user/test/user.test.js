@@ -792,8 +792,7 @@ describe("User endpoints", () => {
         .send({
           username: "newUser",
           email: "newUser@mail.coop",
-          password,
-          accountId: testAccountId
+          password
         })
         .expect("Content-Type", /json/)
         .expect(201)
@@ -822,8 +821,7 @@ describe("User endpoints", () => {
         password,
         email: "new@user.coop",
         firstName: "New",
-        lastName: "User",
-        accountId: testAccountId
+        lastName: "User"
       };
 
       request(app)
@@ -874,8 +872,7 @@ describe("User endpoints", () => {
         .send({
           username: "newUser",
           email: "newUser@mail.coop",
-          password,
-          accountId: fakeAccountId
+          password
         })
         .then((res) => {
           expect(res.body.accountId).to.eql(process.env.ACCOUNT_ID);
@@ -891,8 +888,7 @@ describe("User endpoints", () => {
         .send({
           username: "username1",
           email: "username11111@nayra.coop",
-          password,
-          accountId: testAccountId
+          password
         })
         .expect("Content-Type", /json/)
         .expect(422)
@@ -907,8 +903,7 @@ describe("User endpoints", () => {
             .send({
               username: "username1111",
               email: "username1@nayra.coop",
-              password,
-              accountId: testAccountId
+              password
             })
             .expect(422)
             .then((_res) => {
@@ -917,6 +912,46 @@ describe("User endpoints", () => {
               expect(_res.body.message).to.eql("Not available or duplicated field");
               done();
             });
+        })
+        .catch(done);
+    });
+
+    it("should return an error if accountId is in request body", (done) => {
+      request(app)
+        .post("/api/users/signup")
+        .send({
+          username: "username1",
+          email: "username11111@nayra.coop",
+          password,
+          accountId: testAccountId
+        })
+        .expect("Content-Type", /json/)
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(422);
+          expect(res.body.message).to.eql("accountId field not allowed");
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return an error if emailConfirmed is in request body", (done) => {
+      request(app)
+        .post("/api/users/signup")
+        .send({
+          username: "username1",
+          email: "username11111@nayra.coop",
+          password,
+          emailConfirmed: true
+        })
+        .expect("Content-Type", /json/)
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.code).to.eql(422);
+          expect(res.body.message).to.eql("emailConfirmed field not allowed");
+          done();
         })
         .catch(done);
     });

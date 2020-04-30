@@ -53,7 +53,7 @@ const UserSchema = mongoose.Schema({
 const UserValidationSchema = {
   username: {
     in: ["body"],
-    optional:true,
+    optional: true,
     errorMessage: "Username must be a string",
     isString: true
   },

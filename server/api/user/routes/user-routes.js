@@ -16,7 +16,16 @@ class UserRoutes {
 
     router
       .route("/api/users/signup")
-      .post([validateSchema(checkSchema(UserValidationSchema)), userController.signup]);
+      .post(
+        [
+          [
+            check("emailConfirmed").not().exists().withMessage("emailConfirmed field not allowed"),
+            check("accountId").not().exists().withMessage("accountId field not allowed")
+          ],
+          validateSchema(checkSchema(UserValidationSchema)),
+          userController.signup
+        ]
+      );
 
     // router
     //   .route("/api/users/confirmEmail")
