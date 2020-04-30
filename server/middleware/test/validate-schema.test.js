@@ -43,7 +43,6 @@ describe("validateSchema middleware", () => {
     expect(nextSpy.getCall(0).args[0].name).to.eql(expectedError.name);
     expect(nextSpy.getCall(0).args[0].message).to.eql(expectedError.message);
     expect(nextSpy.getCall(0).args[0].code).to.eql(expectedError.code);
-
   });
 
   it("should throw no error and continue with request if all types are correct", async () => {

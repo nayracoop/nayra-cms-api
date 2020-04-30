@@ -8,12 +8,12 @@ Users belong to a particular account and can create and modify resources.
 - path parameters:  null
 - query parameters: null
 - request body: 
-    ``
+    ```Javascript
     {
-      username: {type: string, required: true, value: registered username or email},
-      password: {type: string, required: true, value: registered password}
+      username: (type: string, required: true, value: registered username or email),
+      password: (type: string, required: true, value: registered password)
     }
-    ``
+    ```
 - responses:
 	- 200: 
       ```JSON
@@ -35,14 +35,8 @@ Users belong to a particular account and can create and modify resources.
         "token": "valid_token_goes_here"
     }
       ```
-	- 422: validation error
-	- 401: unauthorized
-
-**errors right now:**
-    -  :warning: ASSERT wrong type of username and password? :point_right: -> query param is always a string
-    -  :warning: ASSERT missing required keys? **didn't find** :point_left: -> :warning: now 500 unexpected
-    -  provided username does not exist in db?  401  3 "Not authenticated."
-    -  provided password is not valid? 401 1 "Not authenticated"
+	- 422: Validation error   ( wrong data type or missing required fields )
+	- 401: Unauthorized  ( wrong username or password )
 
 
 ### `POST` Sign up

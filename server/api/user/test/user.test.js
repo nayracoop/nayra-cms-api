@@ -151,7 +151,6 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    // TO-DO en vez de tirar esto deberia tirar TYPEERROR en el DAO
     it("should return 422 if the provided username is not a string", (done) => {
       request(app)
         .post("/api/login")
@@ -176,6 +175,31 @@ describe("User endpoints", () => {
           expect(res.body.name).to.eql("ValidationError");
           expect(res.body.message).to.eql("username or password are not a string or missing");
           done();
+        })
+        .catch(done);
+    });
+
+    it.only("should return 422 if the request is missing username or password fields", (done) => {
+      request(app)
+        .post("/api/login")
+        .send({ username: "heyaaaa" })
+        .expect("Content-Type", /json/)
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.message).to.eql("username or password are not a string or missing");
+
+          request(app)
+            .post("/api/login")
+            .send({ password: "notAstring" })
+            .expect("Content-Type", /json/)
+            .expect(422)
+            .then((_res) => {
+              expect(_res.body.name).to.eql("ValidationError");
+              expect(_res.body.message).to.eql("username or password are not a string or missing");
+              done();
+            })
+            .catch(done);
         })
         .catch(done);
     });
