@@ -6,7 +6,12 @@ const UserSchema = mongoose.Schema({
   // apiKey: {
   //   type: String, trim: true, required: true, index: true
   // },
-  accountId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Account" },
+  accountId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Account",
+    immutable: true
+  },
   username: {
     type: String, trim: true, required: true, index: { unique: true }
   },

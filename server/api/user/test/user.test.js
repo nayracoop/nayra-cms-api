@@ -607,7 +607,7 @@ describe("User endpoints", () => {
       request(app)
         .put(`/api/users/${userToUpdateId}`)
         .set("Authorization", `Bearer ${token}`)
-        .send({ email: "Updated!", lastName: "Well done!" })
+        .send({ email: "Updated!", lastName: "Welldone" })
         .expect(422)
         .then((res) => {
           expect(res.body.message).to.eql("Email is wrong");
