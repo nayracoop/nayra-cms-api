@@ -640,6 +640,25 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
+    it("should not be able to update accountId", (done) => {
+      request(app)
+        .put(`/api/users/${userToUpdateId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ accountId: mongoose.Types.ObjectId().toString() })
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.message).to.eql("Field accountId is immutable and strict = 'throw'");
+
+          return UserModel.findOne({ _id: userFromAnotherAccountId });
+        })
+        .then((user) => {
+          expect(user.updated.length).to.eql(0);
+          done();
+        })
+        .catch(done);
+    });
+
     it("should not be able to update a user record from another account", (done) => {
       request(app)
         .put(`/api/users/${userFromAnotherAccountId}`)
