@@ -179,7 +179,7 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
-    it.only("should return 422 if the request is missing username or password fields", (done) => {
+    it("should return 422 if the request is missing username or password fields", (done) => {
       request(app)
         .post("/api/login")
         .send({ username: "heyaaaa" })
@@ -607,10 +607,10 @@ describe("User endpoints", () => {
       request(app)
         .put(`/api/users/${userToUpdateId}`)
         .set("Authorization", `Bearer ${token}`)
-        .send({ accountId: "Updated!", lastName: "Well done!" })
+        .send({ email: "Updated!", lastName: "Well done!" })
         .expect(422)
         .then((res) => {
-          expect(res.body.message).to.eql("accountId must be a valid ObjectId");
+          expect(res.body.message).to.eql("Email is wrong");
           return UserModel.findOne({ username: "test" });
         })
         .then((user) => {
@@ -816,8 +816,7 @@ describe("User endpoints", () => {
         .send({
           username: "newUser",
           email: "newUser@mail.coop",
-          password,
-          accountId: testAccountId
+          password
         })
         .expect("Content-Type", /json/)
         .expect(201)
@@ -846,8 +845,7 @@ describe("User endpoints", () => {
         password,
         email: "new@user.coop",
         firstName: "New",
-        lastName: "User",
-        accountId: testAccountId
+        lastName: "User"
       };
 
       request(app)
@@ -891,15 +889,12 @@ describe("User endpoints", () => {
         }
       });
 
-      const fakeAccountId = mongoose.Types.ObjectId();
-
       request(app)
         .post("/api/users/signup")
         .send({
           username: "newUser",
           email: "newUser@mail.coop",
-          password,
-          accountId: fakeAccountId
+          password
         })
         .then((res) => {
           expect(res.body.accountId).to.eql(process.env.ACCOUNT_ID);
@@ -915,8 +910,7 @@ describe("User endpoints", () => {
         .send({
           username: "username1",
           email: "username11111@nayra.coop",
-          password,
-          accountId: testAccountId
+          password
         })
         .expect("Content-Type", /json/)
         .expect(422)
@@ -931,8 +925,7 @@ describe("User endpoints", () => {
             .send({
               username: "username1111",
               email: "username1@nayra.coop",
-              password,
-              accountId: testAccountId
+              password
             })
             .expect(422)
             .then((_res) => {
