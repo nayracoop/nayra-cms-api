@@ -64,25 +64,39 @@ const UserValidationSchema = {
     optional: true
   },
   email: {
-    in: ["body"],
+    in: ["body", "params", "query"],
     isEmail: true,
     optional: true,
     errorMessage: "Email is wrong"
   },
   emailConfirmed: {
+    in: ["body", "params", "query"],
     isBoolean: true,
-    toBoolean: true,
     optional: true,
     errorMessage: "emailConfirmed must be a boolean"
   },
   firstName: {
+    in: ["body", "params", "query"],
     isString: true,
     errorMessage: "firstName must be a string",
     optional: true
   },
   lastName: {
+    in: ["body", "params", "query"],
     isString: true,
     errorMessage: "lastName must be a string",
+    optional: true
+  },
+  createdBy: {
+    in: ["params", "query"],
+    isMongoId: true,
+    errorMessage: "createdBy must be a valid Id",
+    optional: true
+  },
+  createdAt: {
+    in: ["params", "query"],
+    isISO8601: true,
+    errorMessage: "createdAt must be a valid ISO8601 date",
     optional: true
   }
 };
