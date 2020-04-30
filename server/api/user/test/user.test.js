@@ -581,20 +581,20 @@ describe("User endpoints", () => {
       request(app)
         .put(`/api/users/${userToUpdateId}`)
         .set("Authorization", `Bearer ${token}`)
-        .send({ firstName: "Updated!", lastName: "Well done!" })
+        .send({ firstName: "Updated", lastName: "Well done" })
         .expect(200)
         .then((res) => {
           // response validation
           responseExpect(res.body, [...fieldsToInclude, "updated", "firstName", "lastName"], fieldsToExclude);
-          expect(res.body.firstName).to.eql("Updated!");
-          expect(res.body.lastName).to.eql("Well done!");
+          expect(res.body.firstName).to.eql("Updated");
+          expect(res.body.lastName).to.eql("Well done");
           expect(res.body.updated.length).to.eql(1);
           expect(res.body.updated[0].by).to.eql(adminId.toString());
           return UserModel.findOne({ username: "test" });
         })
         .then((user) => {
-          expect(user.firstName).to.eql("Updated!");
-          expect(user.lastName).to.eql("Well done!");
+          expect(user.firstName).to.eql("Updated");
+          expect(user.lastName).to.eql("Well done");
           expect(user.updated.length).to.eql(1);
           expect(user.updated[0].by).to.eql(adminId);
 
@@ -607,7 +607,7 @@ describe("User endpoints", () => {
       request(app)
         .put(`/api/users/${userToUpdateId}`)
         .set("Authorization", `Bearer ${token}`)
-        .send({ email: "Updated!", lastName: "Welldone" })
+        .send({ email: "Updated", lastName: "Welldone" })
         .expect(422)
         .then((res) => {
           expect(res.body.message).to.eql("Email is wrong");
@@ -640,11 +640,30 @@ describe("User endpoints", () => {
         .catch(done);
     });
 
+    it("should not be able to update accountId", (done) => {
+      request(app)
+        .put(`/api/users/${userToUpdateId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ accountId: mongoose.Types.ObjectId().toString() })
+        .expect(422)
+        .then((res) => {
+          expect(res.body.name).to.eql("ValidationError");
+          expect(res.body.message).to.eql("Field accountId is immutable and strict = 'throw'");
+
+          return UserModel.findOne({ _id: userFromAnotherAccountId });
+        })
+        .then((user) => {
+          expect(user.updated.length).to.eql(0);
+          done();
+        })
+        .catch(done);
+    });
+
     it("should not be able to update a user record from another account", (done) => {
       request(app)
         .put(`/api/users/${userFromAnotherAccountId}`)
         .set("Authorization", `Bearer ${token}`)
-        .send({ firstName: "Updated!", lastName: "Well done!" })
+        .send({ firstName: "Updated", lastName: "Well done" })
         .expect(404)
         .then((res) => {
           expect(res.body.name).to.eql("NotFoundError");
