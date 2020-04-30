@@ -83,6 +83,9 @@ const UserValidationSchema = {
   firstName: {
     in: ["body", "params", "query"],
     isString: true,
+    matches: {
+      options: [/^[0-9a-zA-Z_-\s]+$/, "g"]
+    },
     errorMessage: "firstName must be a string",
     optional: true
   },
@@ -90,6 +93,9 @@ const UserValidationSchema = {
     in: ["body", "params", "query"],
     isString: true,
     errorMessage: "lastName must be a string",
+    matches: {
+      options: [/^[0-9a-zA-Z_-\s]+$/, "g"]
+    },
     optional: true
   },
   createdBy: {
