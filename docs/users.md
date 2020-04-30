@@ -36,7 +36,7 @@ Users belong to a particular account and can create and modify resources.
     }
       ```
 	- 422: Validation error   ( wrong data type or missing required fields )
-	- 401: Unauthorized  ( wrong username or password )
+	- 401: Not authenticated  ( wrong username or password )
 
 
 ### `POST` Sign up
@@ -116,16 +116,7 @@ Users belong to a particular account and can create and modify resources.
     }
     ```
 	- 422: Validation error (missing required fields, wrong type)
-	- 401: Unauthorized
-
-**errores**
-	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
-	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
-	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards) [checkJWT]
-	- ASSERT req.user (coming from checkJWT) is a valid object (write better error message) [wouldn't know how to replicate...]
-	- ASSERT all required fields are present (works but password gets a different error than username and email)
-  - :warning: ASSERT all fields are the correct type **Doesn't work with password -> 500 unexpected** :point_left:
-	- :warning: ASSERT body is an object **not working, throwing 422 "Created user must have a password"**
+	- 401: Not authenticated
 
 
 ### `GET` Get all users
@@ -139,7 +130,6 @@ Users belong to a particular account and can create and modify resources.
       lastName: string,
       email: string,
       username: string, 
-      accountId: ObjectId to string,
       emailConfirmed: boolean (true | false),
       createdBy: ObjectId to string,
       createdAt: ISO Date
@@ -169,18 +159,8 @@ Users belong to a particular account and can create and modify resources.
           ]
         }
         ```
-	- 422  validation error (wrong type, not valid param)
-	- 401: Unauthorized
-
-**errores**
-	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
-	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
-	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
-  - ASSERT invalid query param : 422 ValidationError
-  - ASSERT invalid query param type : 422 ValidationError  :warning: not working for some string fields throwing **500 "/[/: Unterminated character class &&& date  500 Cast to date failed for value"** 
-
-  -:warning: **Count is not working, always return total user documents in db**
-  -:warning: **query params `deleted`  not working (not throwing invalid param error & not filtering either)**
+	- 422  Validation error (invalid param, wrong type)
+	- 401: Not authenticated
 
 
 ### `GET` Get user by ID
@@ -207,14 +187,9 @@ Users belong to a particular account and can create and modify resources.
           "id": "user_id_goes_here"
       }
     ```
-	- 401: Unauthorized
+	- 401: Not authenticated
 	- 404: User not found
-
-**errores**
-	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
-	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
-	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
-  - ASSERT type ID object: 422 "ValidationError" ID is not a valid id object
+  - 422: Validation Error (wrong type)
 
 	
 ### `PUT` Update user by ID
@@ -258,19 +233,12 @@ Users belong to a particular account and can create and modify resources.
             ]
       }
     ```
-	- 401: unauthorized
+	- 401: Not authenticated
 	- 404: User not found
-  - 422: Validation error
+  - 422: Validation error ( wrong data type, invalid fields )
 	
 **errores**
-	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
-	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
-	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
-  - :warning: ASSERT wrong data type **not working, throwing "500 unexpected Cast to string failed for value ..."**
-  - :warning: Wrong body type & non-allowed fields **throw no error**
-
   - :warning: **`accountId` can be updated and instantly disappears from the reach of the user. should we allow this to happen?**
-  - :warning: **A new `updated` entry occurs each time a request happens, even if it doesnt update anything. this should not happen**
 
 
 ### `DELETE` Delete user by ID
@@ -282,16 +250,6 @@ Users belong to a particular account and can create and modify resources.
 - request body: null
 - responses:
 	- 204: no content (deletion was OK)
-	- 401: unauthorized
-	- 404: User not found ("validation error"?? idont think so)
+	- 401: Not authenticated
+	- 404: Not found
   - 422: Wrong data (ValidationError)
-
-
-**errores**
-	- No authentication header >  AuthenticationError(5, 401, "Not authenticated."); (maybe a better text in here)  [checkJWT]
-	- User in JWT does not exist >  AuthenticationError(7, 401, "Not authenticated."); (maybe a better text in here)  [passport conf]
-	- If JWT authentication does not return a user > 401 "invalid authorization code"(maybe a better text in here, and pass it upwards)   [checkJWT]
-  - ASSERT type ID object: 422 "ValidationError" ID is not a valid id object
-  - ID NON existent in db : 404 "ValidationError" Users not found
-
-  - :warning: **when re-deleting user it throws the same 204 code. you can delete multiple times the same ID**
