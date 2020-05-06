@@ -73,7 +73,8 @@ describe("checkJwt middleware", () => {
         email: "username1@nayra.coop",
         emailConfirmed: true,
         hash: crypto.pbkdf2Sync("123456", salt, 1000, 64, "sha512").toString("hex"),
-        salt
+        salt,
+        permissions: ["user:read"]
       },
       {
         accountId: mongoose.Types.ObjectId(),
@@ -81,7 +82,8 @@ describe("checkJwt middleware", () => {
         email: "username2@nayra.coop",
         emailConfirmed: true,
         hash: crypto.pbkdf2Sync("123456", salt, 1000, 64, "sha512").toString("hex"),
-        salt
+        salt,
+        permissions: ["user:read"]
       }
     ];
 

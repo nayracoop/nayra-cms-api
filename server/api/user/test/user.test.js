@@ -20,6 +20,9 @@ require("dotenv").config();
 const { JWT_SECRET } = process.env;
 const app = require("../../../server");
 
+const userPermissions = ["user:read", "user:create", "user:update", "user:delete"];
+
+
 const users = [
   {
     _id: adminId,
@@ -29,7 +32,8 @@ const users = [
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
     salt,
-    updated: []
+    updated: [],
+    permissions: userPermissions
   },
   {
     accountId: testAccountId,
@@ -38,7 +42,8 @@ const users = [
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
     salt,
-    updated: []
+    updated: [],
+    permissions: userPermissions
   },
   {
     accountId: testAccountId,
@@ -47,7 +52,8 @@ const users = [
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
     salt,
-    updated: []
+    updated: [],
+    permissions: userPermissions
   },
   {
     _id: userFromOtherAccountId,
@@ -57,7 +63,8 @@ const users = [
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
     salt,
-    updated: []
+    updated: [],
+    permissions: userPermissions
   }
 ];
 
@@ -214,7 +221,6 @@ describe("User endpoints", () => {
         .then((res) => {
           expect(res.body).to.include.keys(["count", "list"]);
           expect(res.body.count).to.be.eql(usersCount);
-          
           expect(res.body.list.length).to.be.eql(usersCount);
           res.body.list.forEach((user) => {
             responseExpect(user, fieldsToInclude, fieldsToExclude);
