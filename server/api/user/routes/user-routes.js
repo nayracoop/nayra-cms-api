@@ -1,7 +1,6 @@
 const { check, checkSchema } = require("express-validator");
-const guard = require("express-jwt-permissions")();
 const {
-  checkJwt, shapeQuery, validateSchema
+  checkJwt, checkPermissions, shapeQuery, validateSchema
 } = require("../../../middleware");
 const { UserSchema, UserValidationSchema } = require("../model/user-model");
 const { UserController } = require("../controller/user-controller");
@@ -13,8 +12,8 @@ class UserRoutes {
 
     router
       .route("/api/users")
-      .post([checkJwt, guard.check(["user:create"]), validateSchema(checkSchema(UserValidationSchema)), userController.createNew])
-      .get([checkJwt, guard.check(["user:read"]), validateSchema(checkSchema(UserValidationSchema)), check("emailConfirmed").optional().isIn(["true", "false"]), shapeQuery(UserSchema), userController.getAll]);
+      .post([checkJwt, checkPermissions(["user:create"]), validateSchema(checkSchema(UserValidationSchema)), userController.createNew])
+      .get([checkJwt, checkPermissions(["user:read"]), validateSchema(checkSchema(UserValidationSchema)), check("emailConfirmed").optional().isIn(["true", "false"]), shapeQuery(UserSchema), userController.getAll]);
 
     router
       .route("/api/users/signup")
@@ -35,9 +34,9 @@ class UserRoutes {
 
     router
       .route("/api/users/:id")
-      .get([checkJwt, guard.check(["user:read"]), userController.getById])
-      .put([checkJwt, guard.check(["user:update"]), validateSchema(checkSchema(UserValidationSchema)), userController.updateById])
-      .delete([checkJwt, guard.check(["user:delete"]), userController.removeById]);
+      .get([checkJwt, checkPermissions(["user:read"]), userController.getById])
+      .put([checkJwt, checkPermissions(["user:update"]), validateSchema(checkSchema(UserValidationSchema)), userController.updateById])
+      .delete([checkJwt, checkPermissions(["user:delete"]), userController.removeById]);
 
     router
       .route("/api/login")
