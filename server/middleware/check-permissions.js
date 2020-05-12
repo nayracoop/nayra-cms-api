@@ -35,14 +35,13 @@ const checkPermissions = guards => (req, res, next) => {
     }
 
     const sufficient = hasPermissions(guards, req.user.permissions);
-
     if (!sufficient) {
       return next(new PermissionError(403, 403, "User has no sufficient permisions"));
     }
 
     return next();
   } catch (error) {
-    const throwable = normalizeAndLogError("PermissionError", req, error);
+    const throwable = normalizeAndLogError("PermissionError", 403, 403);
     next(throwable);
   }
 };

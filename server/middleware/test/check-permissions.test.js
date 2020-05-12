@@ -38,7 +38,6 @@ describe("checkPermissions middleware", () => {
   });
 
   beforeEach(() => {
-    
     fixtures.save("users", {
       User: users
     });
@@ -80,6 +79,7 @@ describe("checkPermissions middleware", () => {
   });
 
   it("should handle non expected error as Permission Error", (done) => {
+    // TO- DO surely requires some refactor
     assert(false);
     done();
   });
@@ -109,7 +109,7 @@ describe("hasPermissions", () => {
 
     result = hasPermissions([["a", "b"]], ["b", "c"]);
     assert(!result, "Permission logic is failing for AND insufficient condition");
-    
+
     // OR conditions
     result = hasPermissions([["a"], ["b"]], ["a", "c"]);
     assert(result, "Permission logic is failing for OR sufficient condition");
