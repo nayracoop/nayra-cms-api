@@ -20,6 +20,9 @@ require("dotenv").config();
 const { JWT_SECRET } = process.env;
 const app = require("../../../server");
 
+const userPermissions = ["user:read", "user:create", "user:update", "user:delete"];
+
+
 const users = [
   {
     _id: adminId,
@@ -29,7 +32,8 @@ const users = [
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
     salt,
-    updated: []
+    updated: [],
+    permissions: userPermissions
   },
   {
     accountId: testAccountId,
@@ -38,7 +42,8 @@ const users = [
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
     salt,
-    updated: []
+    updated: [],
+    permissions: userPermissions
   },
   {
     accountId: testAccountId,
@@ -47,7 +52,8 @@ const users = [
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
     salt,
-    updated: []
+    updated: [],
+    permissions: ["iCantDoNothing :("]
   },
   {
     _id: userFromOtherAccountId,
@@ -57,7 +63,8 @@ const users = [
     emailConfirmed: true,
     hash: crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex"),
     salt,
-    updated: []
+    updated: [],
+    permissions: userPermissions
   }
 ];
 
@@ -214,7 +221,6 @@ describe("User endpoints", () => {
         .then((res) => {
           expect(res.body).to.include.keys(["count", "list"]);
           expect(res.body.count).to.be.eql(usersCount);
-          
           expect(res.body.list.length).to.be.eql(usersCount);
           res.body.list.forEach((user) => {
             responseExpect(user, fieldsToInclude, fieldsToExclude);
@@ -302,6 +308,22 @@ describe("User endpoints", () => {
         .then((res) => {
           expect(res.body.name).to.eql("ValidationError");
           expect(res.body.message).to.eql("Filter for field defined (hash) is not permitted");
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return a 403 if user has no permission", (done) => {
+      token = jwt.sign(users[2], JWT_SECRET);
+      request(app)
+        .get("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .expect(403)
+        .then((res) => {
+          
+          expect(res.body.code).to.eql(403);
+          expect(res.body.message).to.be.eql("User has no sufficient permisions");
+          expect(res.body.name).to.be.eql("PermissionError");
           done();
         })
         .catch(done);
@@ -449,6 +471,22 @@ describe("User endpoints", () => {
         })
         .catch(done);
     });
+
+    it("should return a 403 if user has no permission", (done) => {
+      token = jwt.sign(users[2], JWT_SECRET);
+      request(app)
+        .post("/api/users")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ userData: "userData" })
+        .expect(403)
+        .then((res) => {
+          expect(res.body.code).to.eql(403);
+          expect(res.body.message).to.be.eql("User has no sufficient permisions");
+          expect(res.body.name).to.be.eql("PermissionError");
+          done();
+        })
+        .catch(done);
+    });
   });
 
   context("GET api/users/:id  (get by Id)", () => {
@@ -535,6 +573,23 @@ describe("User endpoints", () => {
         .expect(401)
         .then((res) => {
           expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return a 403 if user has no permission", (done) => {
+      token = jwt.sign(users[2], JWT_SECRET);
+      request(app)
+        .get(`/api/users/${adminId}`)
+        .query({ firstName: "some name" })
+        .set("Authorization", `Bearer ${token}`)
+        .expect(403)
+        .then((res) => {
+
+          expect(res.body.code).to.eql(403);
+          expect(res.body.message).to.be.eql("User has no sufficient permisions");
+          expect(res.body.name).to.be.eql("PermissionError");
           done();
         })
         .catch(done);
@@ -716,6 +771,22 @@ describe("User endpoints", () => {
         })
         .catch(done);
     });
+
+    it("should return a 403 if user has no permission", (done) => {
+      token = jwt.sign(users[2], JWT_SECRET);
+      request(app)
+        .put(`/api/users/${userToUpdateId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ userData: "userData" })
+        .expect(403)
+        .then((res) => {
+          expect(res.body.code).to.eql(403);
+          expect(res.body.message).to.be.eql("User has no sufficient permisions");
+          expect(res.body.name).to.be.eql("PermissionError");
+          done();
+        })
+        .catch(done);
+    });
   });
 
   context("DELETE api/users/:id  (remove by Id)", () => {
@@ -822,6 +893,21 @@ describe("User endpoints", () => {
         .expect(401)
         .then((res) => {
           expect(res.body).to.eql(expectedError);
+          done();
+        })
+        .catch(done);
+    });
+
+    it("should return a 403 if user has no permission", (done) => {
+      token = jwt.sign(users[2], JWT_SECRET);
+      request(app)
+        .delete(`/api/users/${userToDeleteId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(403)
+        .then((res) => {
+          expect(res.body.code).to.eql(403);
+          expect(res.body.message).to.be.eql("User has no sufficient permisions");
+          expect(res.body.name).to.be.eql("PermissionError");
           done();
         })
         .catch(done);

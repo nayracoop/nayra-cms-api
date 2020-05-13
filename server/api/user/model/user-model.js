@@ -30,6 +30,9 @@ const UserSchema = mongoose.Schema({
   hash: {
     type: String, trim: true, notForQuery: true
   },
+  permissions: {
+    type: Array, notForQuery: true
+  },
   salt: {
     type: String, trim: true, notForQuery: true
   },
@@ -42,6 +45,7 @@ const UserSchema = mongoose.Schema({
   // hide sensible data and include virtuals
   toJSON: {
     transform(doc, ret) {
+      delete ret.permissions;
       delete ret.salt;
       delete ret.hash;
       delete ret.failedLoginAttempts;

@@ -21,7 +21,6 @@ Users belong to a particular account and can create and modify resources.
       {
         "user": {
             "emailConfirmed": true,
-            "deleted": false,
             "_id": "user_id_goes_here",
             "firstName": "Super",
             "lastName": "Admin",
@@ -59,7 +58,6 @@ Users belong to a particular account and can create and modify resources.
   ```JSON
     {
       "emailConfirmed": true,
-      "deleted": false,
       "_id": "new_user_id_goes_here",
       "firstName": "Super",
       "lastName": "Admin",
@@ -79,7 +77,11 @@ Users belong to a particular account and can create and modify resources.
 **errors**
 	- ASSERT request body is not a valid object: check error code -> :warning: now its throwing 500 Unexpected Error, not OK
   - :warning: ASSERT valid types right after the assert of the Object type. :warning: **working for everything but for the password**
+<<<<<<< HEAD
   - :warning: **right now emailConfirmed can be set to true or false from signup, this is not ok.**
+=======
+  - :warning: all new users are assigned to the same account
+>>>>>>> 410beb128b13a394886297ee205ea55ef4fcf5b8
 
 
 ### `POST` Create new user
@@ -102,7 +104,6 @@ Users belong to a particular account and can create and modify resources.
     ```JSON
     {
         "emailConfirmed": true,
-        "deleted": false,
         "_id": "new_user_id_goes_here",
         "firstName": "Super",
         "lastName": "Admin",
@@ -145,7 +146,6 @@ Users belong to a particular account and can create and modify resources.
           "list":  [
             {
               "emailConfirmed": true,
-              "deleted": false,
               "username": "user_name",
               "email": "user_email",
               "accountId": "account_id",
@@ -176,7 +176,6 @@ Users belong to a particular account and can create and modify resources.
 		```JSON
       {
           "emailConfirmed": true,
-          "deleted": false,
           "_id": "new_user_id_goes_here",
           "firstName": "Super",
           "lastName": "Admin",
@@ -217,7 +216,6 @@ Users belong to a particular account and can create and modify resources.
     ```JSON
       {
           "emailConfirmed": true,
-          "deleted": false,
           "_id": "user_id_goes_here",
           "firstName": "Super",
           "lastName": "Admin",
