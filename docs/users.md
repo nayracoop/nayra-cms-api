@@ -74,10 +74,11 @@ Users belong to a particular account and can create and modify resources.
   - 400: Bad request (wrong JSON body syntax) 
 	- 422: Not available (duplicated username or email) | Validation error (missing required field)
 
+:warning: all users created by this endpoint are assigned to the main account set in .env file :warning:
+
 **errors**
 	- ASSERT request body is not a valid object: check error code -> :warning: now its throwing 500 Unexpected Error, not OK
   - :warning: ASSERT valid types right after the assert of the Object type. :warning: **working for everything but for the password**
-  - :warning: all new users are assigned to the same account
   - :warning: **right now emailConfirmed can be set to true or false from signup, this is not ok.**
 
 
@@ -236,9 +237,6 @@ Users belong to a particular account and can create and modify resources.
 	- 401: Not authenticated
 	- 404: User not found
   - 422: Validation error ( wrong data type, invalid fields )
-	
-**errores**
-  - :warning: **`accountId` can be updated and instantly disappears from the reach of the user. should we allow this to happen?**
 
 
 ### `DELETE` Delete user by ID
