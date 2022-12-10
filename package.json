@@ -30,7 +30,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^7.0.0",
     "ejs": "^3.0.1",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "express-content-length-validator": "^1.0.0",
     "express-request-id": "^1.4.1",
     "express-validator": "^6.4.0",
