@@ -39,7 +39,7 @@
     "i18n": "^0.8.3",
     "inquirer": "^7.0.0",
     "jake": "^8.0.19",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.15",
     "minimist": "^1.2.0",
     "moment": "^2.24.0",
