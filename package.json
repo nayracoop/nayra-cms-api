@@ -63,7 +63,7 @@
     "eslint-plugin-mocha": "^6.2.2",
     "faker": "^4.1.0",
     "jasmine-core": "^2.2.0",
-    "mocha": "^6.2.0",
+    "mocha": "^10.2.0",
     "mock-req-res": "^1.1.4",
     "node-mongoose-fixtures": "^0.3.0",
     "nodemon": "^1.19.0",
